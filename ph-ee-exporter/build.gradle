@@ -28,11 +28,11 @@ dependencies {
     }
     compileOnly 'io.camunda:zeebe-exporter-api:8.1.1'
     compileOnly 'io.camunda:zeebe-elasticsearch-exporter:8.1.1'
-    compileOnly 'org.json:json:20190722'
+    implementation ('org.json:json:20190722')
 }
 
 group = 'org.mifos.phee'
-version = '1.1.1-SNAPSHOT'
+version = '3.0.0-SNAPSHOT'
 description = 'exporter'
 java.sourceCompatibility = JavaVersion.VERSION_17
 

@@ -14,8 +14,10 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -74,9 +76,11 @@ public class KafkaExporterClient {
 
         if (configuration.shouldIndexRecord(record)) {
             logger.trace("sending record to kafka: {}", record.toJson());
+            JSONObject jsonObject = new JSONObject(record.toJson());
+            jsonObject.put("exportedTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ").format(new Date()));
             sentToKafka.incrementAndGet();
             metrics.recordBulkSize(1);
-            producer.send(new ProducerRecord<>(kafkaTopic, idFor(record), record.toJson()));
+            producer.send(new ProducerRecord<>(kafkaTopic, idFor(record), jsonObject.toString()));
         } else {
             logger.trace("skipping record: {}", record.toString());
         }

@@ -14,7 +14,6 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 
 import java.text.SimpleDateFormat;

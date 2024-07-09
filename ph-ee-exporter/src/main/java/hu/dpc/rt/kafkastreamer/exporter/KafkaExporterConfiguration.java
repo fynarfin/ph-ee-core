@@ -59,7 +59,7 @@ public class KafkaExporterConfiguration {
       case VARIABLE_DOCUMENT:
         return index.variableDocument;
       case PROCESS_INSTANCE:
-        return index.processInstance(record);
+        return index.shouldIndexEventTypeProcessInstance(record);
         default:
         return false;
     }
@@ -105,7 +105,7 @@ public class KafkaExporterConfiguration {
     public boolean workflowInstanceSubscription = false;
 //    public boolean processInstance = true;
 
-    public boolean processInstance(final Record<?> record) {
+    public boolean shouldIndexEventTypeProcessInstance(final Record<?> record) {
         String intent = record.getIntent().toString();
         if(intent.equals("ELEMENT_ACTIVATED") || intent.equals("ELEMENT_COMPLETING") || intent.equals("SEQUENCE_FLOW_TAKEN")) {
             return false;

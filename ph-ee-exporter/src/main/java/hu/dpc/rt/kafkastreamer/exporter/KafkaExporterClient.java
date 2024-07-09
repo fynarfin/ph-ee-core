@@ -76,11 +76,13 @@ public class KafkaExporterClient {
 
         if (configuration.shouldIndexRecord(record)) {
             logger.trace("sending record to kafka: {}", record.toJson());
-            JSONObject jsonObject = new JSONObject(record.toJson());
-            jsonObject.put("exportedTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ").format(new Date()));
+            String jsonString = record.toJson();
+            String exportedTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ").format(new Date());
+            jsonString = jsonString.substring(0, jsonString.length() - 1)
+                         + ", \"exportedTime\": \"" + exportedTime + "\"}";
             sentToKafka.incrementAndGet();
             metrics.recordBulkSize(1);
-            producer.send(new ProducerRecord<>(kafkaTopic, idFor(record), jsonObject.toString()));
+            producer.send(new ProducerRecord<>(kafkaTopic, idFor(record), jsonString));
         } else {
             logger.trace("skipping record: {}", record.toString());
         }

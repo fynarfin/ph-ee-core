@@ -9,7 +9,6 @@ package hu.dpc.rt.kafkastreamer.exporter;
 
 import io.camunda.zeebe.protocol.record.Record;
 import io.camunda.zeebe.protocol.record.RecordType;
-import io.camunda.zeebe.protocol.record.ValueType;
 
 public class KafkaExporterConfiguration {
   // elasticsearch http url - not used
@@ -36,11 +35,11 @@ public class KafkaExporterConfiguration {
 
   public boolean shouldIndexRecord(final Record<?> record) {
     return shouldIndexRecordType(record.getRecordType())
-        && shouldIndexValueType(record.getValueType());
+        && shouldIndexValueType(record);
   }
 
-  public boolean shouldIndexValueType(final ValueType valueType) {
-    switch (valueType) {
+  public boolean shouldIndexValueType(final Record<?> record) {
+    switch (record.getValueType()) {
       case DEPLOYMENT:
         return index.deployment;
       case ERROR:
@@ -60,7 +59,7 @@ public class KafkaExporterConfiguration {
       case VARIABLE_DOCUMENT:
         return index.variableDocument;
       case PROCESS_INSTANCE:
-        return index.processInstance;
+        return index.shouldIndexEventTypeProcessInstance(record);
         default:
         return false;
     }
@@ -104,7 +103,15 @@ public class KafkaExporterConfiguration {
     public boolean workflowInstance = true;
     public boolean workflowInstanceCreation = false;
     public boolean workflowInstanceSubscription = false;
-    public boolean processInstance = true;
+//    public boolean processInstance = true;
+
+    public boolean shouldIndexEventTypeProcessInstance(final Record<?> record) {
+        String intent = record.getIntent().toString();
+        if(intent.equals("ELEMENT_ACTIVATED") || intent.equals("ELEMENT_COMPLETING") || intent.equals("SEQUENCE_FLOW_TAKEN")) {
+            return false;
+        }
+        return true;
+    }
 
     @Override
     public String toString() {
@@ -142,8 +149,6 @@ public class KafkaExporterConfiguration {
           + workflowInstanceCreation
           + ", workflowInstanceSubscription="
           + workflowInstanceSubscription
-          + ", process_instance="
-          + processInstance
           + '}';
     }
   }

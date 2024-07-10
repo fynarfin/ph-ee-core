@@ -16,6 +16,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -74,9 +75,13 @@ public class KafkaExporterClient {
 
         if (configuration.shouldIndexRecord(record)) {
             logger.trace("sending record to kafka: {}", record.toJson());
+            String jsonString = record.toJson();
+            String exportedTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ").format(new Date());
+            jsonString = jsonString.substring(0, jsonString.length() - 1)
+                         + ", \"exportedTime\": \"" + exportedTime + "\"}";
             sentToKafka.incrementAndGet();
             metrics.recordBulkSize(1);
-            producer.send(new ProducerRecord<>(kafkaTopic, idFor(record), record.toJson()));
+            producer.send(new ProducerRecord<>(kafkaTopic, idFor(record), jsonString));
         } else {
             logger.trace("skipping record: {}", record.toString());
         }

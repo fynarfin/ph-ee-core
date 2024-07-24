@@ -1,0 +1,64 @@
+service:
+  apiversion: "v1"
+
+secret:
+  apiversion: "v1"
+
+enabled: true
+image: ""
+imageTag: ""
+SPRING_PROFILES_ACTIVE: "bb"
+hostname: "ops.sandbox.mifos.io"
+webhost: "ops.sandbox.mifos.io"
+limits:
+  cpu: "500m"
+  memory: "512M"
+requests:
+  cpu: "100m"
+  memory: "256M"
+# Enabling this will publicly expose your Elasticsearch instance.
+# Only enable this if you have security enabled on your cluster
+ingress:
+  enabled: false
+  annotations: {}
+  # kubernetes.io/ingress.class: "nginx"
+  pathtype: ImplementationSpecific
+  hosts:
+    - host: "" 
+      paths:
+        - path: /
+  tls: []
+  #  - secretName: sandbox-secret
+  #    hosts:
+  #      - chart-example.local
+deployment:
+  apiVersion: "apps/v1"
+  config: {}
+
+configmap:
+  apiversion: "v1"
+  hostname: "ops.sandbox.mifos.io"
+  identity:
+    hostname: "ops-bk.sandbox.mifos.io"
+backend:
+  PH_OPS_BACKEND_SERVER_URL: https://ops-bk.sandbox.mifos.io/api/v1
+  PH_VOU_BACKEND_SERVER_URL: https://ops-bk.sandbox.mifos.io/api/v1
+  PH_ACT_BACKEND_SERVER_URL: https://ops-bk.sandbox.mifos.io/api/v1
+  PH_VOU_CALLBACK_URL: https://vouchers.sandbox.mifos.io
+  PH_OPS_BATCH_KEY: ""
+  PH_OPS_BULK_CONNECTOR_URL: https://bulk-connector.sandbox.mifos.io
+  PH_PLATFORM_TENANT_ID: phdefault
+  PH_PLATFORM_TENANT_IDS: phdefault
+  PH_REGISTERING_INSTITUTION_ID: SocialInstitution
+auth:
+  PH_AUTH_ENABLED: false
+  PH_OAUTH_ENABLED: false
+  PH_OAUTH_TYPE: keycloak
+  PH_OAUTH_SERVER_URL: http://keycloak.sandbox.mifos.io/auth
+  PH_OAUTH_REALM: paymenthub
+  PH_OAUTH_CLIENT_ID: opsapp
+  PH_OAUTH_CLIENT_SECRET: Y2xpZW50Og==
+  PH_OAUTH_BASIC_AUTH: true
+  PH_OAUTH_BASIC_AUTH_TOKEN: Y2xpZW50Og==
+PH_DEFAULT_LANGUAGE: en
+PH_SUPPORTED_LANGUAGES: en,fr,es

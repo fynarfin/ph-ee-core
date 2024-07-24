@@ -1,0 +1,53 @@
+camel:
+  server-port: 5000
+  springboot:
+    main-run-controller: true
+  dataformat:
+    json-jackson:
+      auto-discover-object-mapper: true
+
+dfspids: "DFSPIDS"
+
+server:
+  port: 8080
+
+zeebe:
+  client:
+    max-execution-threads: 50
+    evenly-allocated-max-jobs: 1000
+    poll-interval: 10
+  #    max-execution-threads: 100
+  #    number-of-workers: 8
+  #    evenly-allocated-max-jobs: "#{${zeebe.client.max-execution-threads} / ${zeebe.client.number-of-workers}}"
+  broker:
+    contactpoint: "127.0.0.1:26500"
+
+ams:
+  local:
+    server-cert-check: false
+    enabled: true
+
+mockFailure:
+  percentage: 50
+
+logging:
+  level:
+    root: INFO
+
+async:
+  core_pool_size: 10
+  max_pool_size: 10
+  queue_capacity: 100
+
+threshold:
+  amount: 20000
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      liveness:
+        enabled: true
+      readiness:
+        enabled: true

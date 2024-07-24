@@ -1,0 +1,109 @@
+fineract:
+  datasource:
+    core:
+      host: operations-mysql
+#      host: "127.0.0.1"
+      port: 3306
+      schema: tenants
+      username: root
+      password: mysql
+#      password: "ethieTieCh8ahv"
+    common:
+      protocol: jdbc
+      subprotocol: mysql
+      driverclass_name: com.mysql.cj.jdbc.Driver
+
+# Interface time zone reference : https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+interface:
+  timezone: "Asia/Kolkata"
+
+token:
+  user:
+    access-validity-seconds: 600
+    refresh-validity-seconds: 43200
+  client:
+    access-validity-seconds: 3600
+    channel:
+      secret: "p2345"
+
+config:
+  imu:
+    rate-validity-seconds: 300
+
+caching:
+  enabled: false
+
+security:
+  filter-order: 4
+  jws:
+    enable: false
+
+spring:
+  resources:
+    add-mappings: false
+  mvc:
+    favicon:
+      enabled: false
+  jmx:
+    enabled: false
+
+server:
+  port: 5000
+
+rest:
+  authorization:
+    enabled: false
+    settings:
+      - endpoint: "/api/v1/transfer/*/refund"
+        authority: "hasAuthority('REFUND')"
+      - endpoint: "/api/v1/**"
+        authority: "hasAuthority('ALL_FUNCTIONS')"
+logging:
+  level:
+    ROOT: ERROR
+    pattern:
+      console: "%clr(%d{dd-MM-yyyy HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr([%35.35t]){faint} %clr(%-28.28logger{28}){cyan} %clr(:){faint}%X{BUSINESS-LOG} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"
+
+cloud:
+  aws:
+    enabled: true
+    minio-public-host: "http://minio.sandbox.mifos.io"
+    s3BaseUrl: "https://s3.ap-south-1.amazonaws.com"
+    credentials:
+      access-key: ${AWS_ACCESS_KEY:AKIAX32JM37TZOJ5AKFB}
+      secret-key: ${AWS_SECRET_KEY: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}
+    region:
+      static: us-east-2
+    stack:
+      auto: false
+  azure:
+    enabled: false
+    blob:
+      connection-string:
+
+payment:
+  modes:
+    - id: "slcb"
+      type: "BATCH"
+
+application:
+  bucket-name: paymenthub-ee-dev
+
+channel-connector:
+  url: http://bb-connector-channel.mifos.io
+  transfer-path: /channel/transfer
+
+management:
+#  server:
+#    port: 5000
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      liveness:
+        enabled: true
+      readiness:
+        enabled: true
+#      show-details: always
+
+

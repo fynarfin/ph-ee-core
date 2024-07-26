@@ -28,6 +28,7 @@ jobs:
               echo "Skipping the build and push as the tag $IMAGE_TAG already exists in Docker Hub."
               exit 0
             fi
+            cd ph-ee-bill-pay
             ./gradlew bootJar
             docker build -t "fynarfin/ph-ee-bill-pay:$IMAGE_TAG" .
             docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
@@ -46,6 +47,7 @@ jobs:
       - run:
           name: Build Docker image
           command: |
+            cd ph-ee-bill-pay
             ./gradlew checkstyleMain
             ./gradlew bootJar
             docker build -t fynarfin/ph-ee-bill-pay:latest .
@@ -91,6 +93,7 @@ jobs:
               echo "Skipping the build and push as the tag $IMAGE_TAG already exists in Docker Hub."
               exit 0
             fi
+            cd ph-ee-vouchers
             ./gradlew bootJar
             docker build -t "fynarfin/ph-ee-vouchers:$IMAGE_TAG" .
             docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
@@ -109,6 +112,7 @@ jobs:
       - run:
           name: Build Docker image for ph-ee-vouchers
           command: |
+            cd ph-ee-vouchers
             ./gradlew checkstyleMain
             ./gradlew bootJar
             docker build -t fynarfin/ph-ee-vouchers:latest .

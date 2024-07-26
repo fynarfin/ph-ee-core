@@ -1,4 +1,5 @@
 version: 2.1
+
 executors:
   docker-executor:
     docker:
@@ -7,107 +8,131 @@ executors:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
 
-commands:
-  setup_remote_docker:
-    steps:
-      - setup_remote_docker:
-          version: 20.10.14
-
-  checkout_code:
-    steps:
-      - checkout
-
-  build_docker_image:
-    parameters:
-      service_name:
-        type: string
-      tag:
-        type: string
-        default: "latest"
-    steps:
-      - run:
-          name: Build Docker image <<parameters.service_name>>:<<parameters.tag>>
-          command: |
-            ./gradlew bootJar
-            docker build -t fynarfin/<<parameters.service_name>>:<<parameters.tag>> .
-
-  push_docker_image:
-    parameters:
-      service_name:
-        type: string
-      tag:
-        type: string
-    steps:
-      - run:
-          name: Push Docker image <<parameters.service_name>>:<<parameters.tag>>
-          command: |
-            docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
-            docker push fynarfin/<<parameters.service_name>>:<<parameters.tag>>
-
 jobs:
-  build_and_push_tag_image:
+  build_and_push_billPay_tag_image:
     executor: docker-executor
-    parameters:
-      service_name:
-        type: string
     environment:
       JVM_OPTS: -Xmx512m
       TERM: dumb
       GITHUB_TOKEN: ${GITHUB_TOKEN}
 
     steps:
-      - checkout_code
-      - setup_remote_docker
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
       - run:
-          name: Check if Docker tag already exists
+          name: Build and Push Docker tag Image
           command: |
             IMAGE_TAG=$CIRCLE_TAG
-            if curl -s -f -u "$DOCKERHUB_USERNAME":"$DOCKERHUB_PASSWORD" "https://hub.docker.com/v2/repositories/fynarfin/<<parameters.service_name>>/tags/$IMAGE_TAG" > /dev/null; then
+            if curl -s -f -u "$DOCKERHUB_USERNAME":"$DOCKERHUB_PASSWORD" "https://hub.docker.com/v2/repositories/fynarfin/ph-ee-bill-pay/tags/$IMAGE_TAG" > /dev/null; then
               echo "Skipping the build and push as the tag $IMAGE_TAG already exists in Docker Hub."
               exit 0
             fi
-      - build_docker_image:
-          service_name: <<parameters.service_name>>
-          tag: $CIRCLE_TAG
-      - push_docker_image:
-          service_name: <<parameters.service_name>>
-          tag: $CIRCLE_TAG
+            ./gradlew bootJar
+            docker build -t "fynarfin/ph-ee-bill-pay:$IMAGE_TAG" .
+            docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
+            docker push "fynarfin/ph-ee-bill-pay:$IMAGE_TAG"
 
-  build_and_push_latest_image:
+  build_and_push_billPay_latest_image:
     executor: docker-executor
-    parameters:
-      service_name:
-        type: string
     environment:
       JVM_OPTS: -Xmx512m
       TERM: dumb
 
     steps:
-      - checkout_code
-      - setup_remote_docker
-      - build_docker_image:
-          service_name: <<parameters.service_name>>
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
       - run:
-          name: Tag Docker image with JIRA story if not on develop branch
+          name: Build Docker image
           command: |
+            ./gradlew checkstyleMain
+            ./gradlew bootJar
+            docker build -t fynarfin/ph-ee-bill-pay:latest .
             if [ "$CIRCLE_BRANCH" != "develop" ]; then
               PR_NUMBER=$(basename $CIRCLE_PULL_REQUEST)
               PR_TITLE=$(curl -sSL "https://api.github.com/repos/fynarfin/$CIRCLE_PR_REPONAME/pulls/$PR_NUMBER" | jq -r '.title')
               JIRA_STORY=$(echo $PR_TITLE | cut -d "[" -f2 | cut -d "]" -f1 | tr '[A-Z]' '[a-z]')
               if [ -z "$JIRA_STORY" ]; then echo "Invalid PR title" && exit 1; else echo "Ticket NO: $JIRA_STORY"; fi
-              docker image tag fynarfin/<<parameters.service_name>>:latest fynarfin/<<parameters.service_name>>:$JIRA_STORY
+              docker image tag fynarfin/ph-ee-bill-pay:latest fynarfin/ph-ee-bill-pay:$JIRA_STORY
             fi
-      - push_docker_image:
-          service_name: <<parameters.service_name>>
-          tag: latest
       - run:
-          name: Push tagged Docker image with JIRA story if not on develop branch
+          name: Login to DockerHub
+          command: echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
+      - run:
+          name: Push Docker image to DockerHub
           command: |
+            if [ "$CIRCLE_BRANCH" = "develop" ]; then
+              docker push fynarfin/ph-ee-bill-pay:latest
+            fi
             if [ "$CIRCLE_BRANCH" != "develop" ]; then
               PR_NUMBER=$(basename $CIRCLE_PULL_REQUEST)
               PR_TITLE=$(curl -sSL "https://api.github.com/repos/fynarfin/$CIRCLE_PR_REPONAME/pulls/$PR_NUMBER" | jq -r '.title')
               JIRA_STORY=$(echo $PR_TITLE | cut -d "[" -f2 | cut -d "]" -f1 | tr '[A-Z]' '[a-z]')
-              docker push fynarfin/<<parameters.service_name>>:${JIRA_STORY}
+              docker push fynarfin/ph-ee-bill-pay:${JIRA_STORY}
+            fi
+
+  build_and_push_vouchers_tag_image:
+    executor: docker-executor
+    environment:
+      JVM_OPTS: -Xmx512m
+      TERM: dumb
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+      - run:
+          name: Build and Push Docker tag Image for ph-ee-vouchers
+          command: |
+            IMAGE_TAG=$CIRCLE_TAG
+            if curl -s -f -u "$DOCKERHUB_USERNAME":"$DOCKERHUB_PASSWORD" "https://hub.docker.com/v2/repositories/fynarfin/ph-ee-vouchers/tags/$IMAGE_TAG" > /dev/null; then
+              echo "Skipping the build and push as the tag $IMAGE_TAG already exists in Docker Hub."
+              exit 0
+            fi
+            ./gradlew bootJar
+            docker build -t "fynarfin/ph-ee-vouchers:$IMAGE_TAG" .
+            docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
+            docker push "fynarfin/ph-ee-vouchers:$IMAGE_TAG"
+
+  build_and_push_vouchers_latest_image:
+    executor: docker-executor
+    environment:
+      JVM_OPTS: -Xmx512m
+      TERM: dumb
+
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+      - run:
+          name: Build Docker image for ph-ee-vouchers
+          command: |
+            ./gradlew checkstyleMain
+            ./gradlew bootJar
+            docker build -t fynarfin/ph-ee-vouchers:latest .
+            if [ "$CIRCLE_BRANCH" != "develop" ]; then
+              PR_NUMBER=$(basename $CIRCLE_PULL_REQUEST)
+              PR_TITLE=$(curl -sSL "https://api.github.com/repos/fynarfin/$CIRCLE_PR_REPONAME/pulls/$PR_NUMBER" | jq -r '.title')
+              JIRA_STORY=$(echo $PR_TITLE | cut -d "[" -f2 | cut -d "]" -f1 | tr '[A-Z]' '[a-z]')
+              if [ -z "$JIRA_STORY" ]; then echo "Invalid PR title" && exit 1; else echo "Ticket NO: $JIRA_STORY"; fi
+              docker image tag fynarfin/ph-ee-vouchers:latest fynarfin/ph-ee-vouchers:$JIRA_STORY
+            fi
+      - run:
+          name: Login to DockerHub
+          command: echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
+      - run:
+          name: Push Docker image to DockerHub
+          command: |
+            if [ "$CIRCLE_BRANCH" = "develop" ]; then
+              docker push fynarfin/ph-ee-vouchers:latest
+            fi
+            if [ "$CIRCLE_BRANCH" != "develop" ]; then
+              PR_NUMBER=$(basename $CIRCLE_PULL_REQUEST)
+              PR_TITLE=$(curl -sSL "https://api.github.com/repos/fynarfin/$CIRCLE_PR_REPONAME/pulls/$PR_NUMBER" | jq -r '.title')
+              JIRA_STORY=$(echo $PR_TITLE | cut -d "[" -f2 | cut -d "]" -f1 | tr '[A-Z]' '[a-z]')
+              docker push fynarfin/ph-ee-vouchers:${JIRA_STORY}
             fi
 
   deploy:
@@ -124,37 +149,29 @@ workflows:
   version: 2
   build-and-deploy:
     jobs:
-      - build_and_push_tag_image:
-          name: build_and_push_tag_image_ph-ee-bill-pay
-          service_name: ph-ee-bill-pay
+      - build_and_push_billPay_tag_image:
           filters:
             tags:
-              only: /^v\d+\.\d+\.\d+$/
+              only: /^v\d+\.\d+\.\d+$/  # Match tags in the format v1.2.3
           context:
             - DOCKER
-      - build_and_push_latest_image:
-          name: build_and_push_latest_image_ph-ee-bill-pay
-          service_name: ph-ee-bill-pay
+      - build_and_push_billPay_latest_image:
           context:
             - DOCKER
-      - build_and_push_tag_image:
-          name: build_and_push_tag_image_ph-ee-vouchers
-          service_name: ph-ee-vouchers
+      - build_and_push_vouchers_tag_image:
           filters:
             tags:
-              only: /^v\d+\.\d+\.\d+$/
+              only: /^v\d+\.\d+\.\d+$/  # Match tags in the format v1.2.3
           context:
             - DOCKER
-      - build_and_push_latest_image:
-          name: build_and_push_latest_image_ph-ee-vouchers
-          service_name: ph-ee-vouchers
+      - build_and_push_vouchers_latest_image:
           context:
             - DOCKER
       - deploy:
           requires:
-            - build_and_push_tag_image_ph-ee-bill-pay
-            - build_and_push_latest_image_ph-ee-bill-pay
-            - build_and_push_tag_image_ph-ee-vouchers
-            - build_and_push_latest_image_ph-ee-vouchers
+            - build_and_push_billPay_tag_image
+            - build_and_push_billPay_latest_image
+            - build_and_push_vouchers_tag_image
+            - build_and_push_vouchers_latest_image
           context:
             - DOCKER

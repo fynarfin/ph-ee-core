@@ -83,9 +83,9 @@ jobs:
               if [ -z "$JIRA_STORY" ]; then echo "Invalid PR title" && exit 1; else echo "Ticket NO: $JIRA_STORY" && JIRA_STORY_DIR=$(echo /jira-story-version); fi
               echo Charts will save in https://fynarfin.io/images/fynarfin$JIRA_STORY_DIR
             fi
-            sed -i "5s/.*/version: 0.0.0-SNAPSHOT$JIRA_STORY/" helm/ph-ee-engine/Chart.yaml
-            helm dep up helm/ph-ee-engine
-            helm package helm/ph-ee-engine
+            sed -i "5s/.*/version: 0.0.0-SNAPSHOT$JIRA_STORY/" ph-ee-env-template/helm/ph-ee-engine/Chart.yaml
+            helm dep up ph-ee-env-templatehelm/ph-ee-engine
+            helm package ph-ee-env-templatehelm/ph-ee-engine
             helm repo index .
             echo "$CERT_FILE" | base64 --decode > b64encoded.pem
             chmod 400 b64encoded.pem

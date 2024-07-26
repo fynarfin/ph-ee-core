@@ -116,7 +116,7 @@ configure(this) {
             targetExclude '**/build/**', '**/bin/**', '**/out/**'
             importOrder() //sort imports alphabetically
             removeUnusedImports()
-            eclipse().configFile "$rootDir/config/es-formatter.xml"
+            eclipse().configFile "$rootDir/ph-ee-importer-es/config/es-formatter.xml"
             endWithNewline()
             trimTrailingWhitespace()
             // Enforce style modifier order

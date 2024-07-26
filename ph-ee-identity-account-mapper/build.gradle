@@ -141,7 +141,7 @@ configure(this) {
             targetExclude '**/build/**', '**/bin/**', '**/out/**'
             importOrder() //sort imports alphabetically
             removeUnusedImports()
-            eclipse().configFile "$rootDir/config/iam-formatter.xml"
+            eclipse().configFile "$rootDir/ph-ee-identity-account-mapper/config/iam-formatter.xml"
             endWithNewline()
             trimTrailingWhitespace()
             // Enforce style modifier order
@@ -282,4 +282,6 @@ configure(this) {
                     )
         }
     }
+}
+task bootRun() {
 }

@@ -137,7 +137,7 @@ configure(this) {
             targetExclude '**/build/**', '**/bin/**', '**/out/**'
             importOrder() //sort imports alphabetically
             removeUnusedImports()
-            eclipse().configFile "$rootDir/config/mock-formatter.xml"
+            eclipse().configFile "$rootDir/ph-ee-connector-mock-payment-schema/config/mock-formatter.xml"
             endWithNewline()
             trimTrailingWhitespace()
             // Enforce style modifier order
@@ -331,4 +331,6 @@ openApi {
     apiDocsUrl.set("http://localhost:8080/v3/api-docs")
     outputDir.set(file("src/main/java/docs"))
     outputFileName.set("swagger.yaml")
+}
+task bootRun() {
 }

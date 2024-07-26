@@ -122,7 +122,7 @@ configure(this) {
             targetExclude '**/build/**', '**/bin/**', '**/out/**'
             importOrder() //sort imports alphabetically
             removeUnusedImports()
-            eclipse().configFile "$rootDir/config/common-formatter.xml"
+            eclipse().configFile "$rootDir/ph-ee-connector-common/config/common-formatter.xml"
             endWithNewline()
             trimTrailingWhitespace()
             // Enforce style modifier order

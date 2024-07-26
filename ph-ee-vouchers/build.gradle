@@ -140,7 +140,7 @@ configure(this) {
             targetExclude '**/build/**', '**/bin/**', '**/out/**'
             importOrder() //sort imports alphabetically
             removeUnusedImports()
-            eclipse().configFile "$rootDir/config/voucher-formatter.xml"
+            eclipse().configFile "$rootDir/ph-ee-vouchers/config/voucher-formatter.xml"
             endWithNewline()
             trimTrailingWhitespace()
             // Enforce style modifier order

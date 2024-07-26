@@ -171,7 +171,7 @@ configure(this) {
             targetExclude '**/build/**', '**/bin/**', '**/out/**'
             importOrder() //sort imports alphabetically
             removeUnusedImports()
-            eclipse().configFile "$rootDir/config/bulk-formatter.xml"
+            eclipse().configFile "$rootDir/ph-ee-bulk-processor/config/bulk-formatter.xml"
             endWithNewline()
             trimTrailingWhitespace()
             // Enforce style modifier order

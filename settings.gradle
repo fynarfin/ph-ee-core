@@ -1,0 +1,9 @@
+include 'ph-ee-bill-pay' , 'ph-ee-bulk-processor', 'ph-ee-connector-channel', 'ph-ee-connector-mojaloop-java',
+'ph-ee-connector-crm',  'ph-ee-importer-es', 'ph-ee-importer-rdbms', 'ph-ee-integration-test',
+'ph-ee-vouchers', 'ph-ee-zeebe-ops', 'ph-ee-identity-account-mapper', 'ph-ee-connector-bulk', 'ph-ee-connector-mock-payment-schema',
+ 'ph-ee-exporter', 'ph-ee-connector-common', 'ph-ee-operations-app', 'ph-ee-connector-ams-mifos','ph-ee-connector-gsma-mm'
+
+gradle.ext{
+    app_username = '<username>'
+    app_password = '<password>'
+}

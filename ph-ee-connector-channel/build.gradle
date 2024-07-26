@@ -153,7 +153,7 @@ configure(this) {
             targetExclude '**/build/**', '**/bin/**', '**/out/**', '**/gsmastub/**'
             importOrder() //sort imports alphabetically
             removeUnusedImports()
-            eclipse().configFile "$rootDir/config/channel-formatter.xml"
+            eclipse().configFile "$rootDir/ph-ee-connector-channel/config/channel-formatter.xml"
             endWithNewline()
             trimTrailingWhitespace()
             // Enforce style modifier order

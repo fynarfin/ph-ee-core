@@ -1,0 +1,161 @@
+version: 2.1
+
+executors:
+  docker-executor:
+    docker:
+      - image: circleci/openjdk:17-buster-node-browsers-legacy
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+
+commands:
+  setup_remote_docker:
+    steps:
+      - setup_remote_docker:
+          version: 20.10.14
+
+  checkout_code:
+    steps:
+      - checkout
+
+  build_docker_image:
+    parameters:
+      service_name:
+        type: string
+      tag:
+        type: string
+        default: "latest"
+    steps:
+      - run:
+          name: Build Docker image <<parameters.service_name>>:<<parameters.tag>>
+          command: |
+            ./gradlew bootJar
+            docker build -t fynarfin/<<parameters.service_name>>:<<parameters.tag>> .
+
+  push_docker_image:
+    parameters:
+      service_name:
+        type: string
+      tag:
+        type: string
+    steps:
+      - run:
+          name: Push Docker image <<parameters.service_name>>:<<parameters.tag>>
+          command: |
+            docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
+            docker push fynarfin/<<parameters.service_name>>:<<parameters.tag>>
+
+jobs:
+  build_and_push_tag_image:
+    executor: docker-executor
+    parameters:
+      service_name:
+        type: string
+    environment:
+      JVM_OPTS: -Xmx512m
+      TERM: dumb
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+
+    steps:
+      - checkout_code
+      - setup_remote_docker
+      - run:
+          name: Check if Docker tag already exists
+          command: |
+            IMAGE_TAG=$CIRCLE_TAG
+            if curl -s -f -u "$DOCKERHUB_USERNAME":"$DOCKERHUB_PASSWORD" "https://hub.docker.com/v2/repositories/fynarfin/<<parameters.service_name>>/tags/$IMAGE_TAG" > /dev/null; then
+              echo "Skipping the build and push as the tag $IMAGE_TAG already exists in Docker Hub."
+              exit 0
+            fi
+      - build_docker_image:
+          service_name: <<parameters.service_name>>
+          tag: $CIRCLE_TAG
+      - push_docker_image:
+          service_name: <<parameters.service_name>>
+          tag: $CIRCLE_TAG
+
+  build_and_push_latest_image:
+    executor: docker-executor
+    parameters:
+      service_name:
+        type: string
+    environment:
+      JVM_OPTS: -Xmx512m
+      TERM: dumb
+
+    steps:
+      - checkout_code
+      - setup_remote_docker
+      - build_docker_image:
+          service_name: <<parameters.service_name>>
+      - run:
+          name: Tag Docker image with JIRA story if not on develop branch
+          command: |
+            if [ "$CIRCLE_BRANCH" != "develop" ]; then
+              PR_NUMBER=$(basename $CIRCLE_PULL_REQUEST)
+              PR_TITLE=$(curl -sSL "https://api.github.com/repos/fynarfin/$CIRCLE_PR_REPONAME/pulls/$PR_NUMBER" | jq -r '.title')
+              JIRA_STORY=$(echo $PR_TITLE | cut -d "[" -f2 | cut -d "]" -f1 | tr '[A-Z]' '[a-z]')
+              if [ -z "$JIRA_STORY" ]; then echo "Invalid PR title" && exit 1; else echo "Ticket NO: $JIRA_STORY"; fi
+              docker image tag fynarfin/<<parameters.service_name>>:latest fynarfin/<<parameters.service_name>>:$JIRA_STORY
+            fi
+      - push_docker_image:
+          service_name: <<parameters.service_name>>
+          tag: latest
+      - run:
+          name: Push tagged Docker image with JIRA story if not on develop branch
+          command: |
+            if [ "$CIRCLE_BRANCH" != "develop" ]; then
+              PR_NUMBER=$(basename $CIRCLE_PULL_REQUEST)
+              PR_TITLE=$(curl -sSL "https://api.github.com/repos/fynarfin/$CIRCLE_PR_REPONAME/pulls/$PR_NUMBER" | jq -r '.title')
+              JIRA_STORY=$(echo $PR_TITLE | cut -d "[" -f2 | cut -d "]" -f1 | tr '[A-Z]' '[a-z]')
+              docker push fynarfin/<<parameters.service_name>>:${JIRA_STORY}
+            fi
+
+  deploy:
+    executor: docker-executor
+    steps:
+      - run:
+          name: Deploy to environment
+          command: |
+            echo "Deploying to environment..."
+            # Add your deployment scripts/commands here
+            echo "Deployment completed."
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build_and_push_tag_image:
+          name: build_and_push_tag_image_ph-ee-bill-pay
+          service_name: ph-ee-bill-pay
+          filters:
+            tags:
+              only: /^v\d+\.\d+\.\d+$/
+          context:
+            - DOCKER
+      - build_and_push_latest_image:
+          name: build_and_push_latest_image_ph-ee-bill-pay
+          service_name: ph-ee-bill-pay
+          context:
+            - DOCKER
+      - build_and_push_tag_image:
+          name: build_and_push_tag_image_ph-ee-vouchers
+          service_name: ph-ee-vouchers
+          filters:
+            tags:
+              only: /^v\d+\.\d+\.\d+$/
+          context:
+            - DOCKER
+      - build_and_push_latest_image:
+          name: build_and_push_latest_image_ph-ee-vouchers
+          service_name: ph-ee-vouchers
+          context:
+            - DOCKER
+      - deploy:
+          requires:
+            - build_and_push_tag_image_ph-ee-bill-pay
+            - build_and_push_latest_image_ph-ee-bill-pay
+            - build_and_push_tag_image_ph-ee-vouchers
+            - build_and_push_latest_image_ph-ee-vouchers
+          context:
+            - DOCKER

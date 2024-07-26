@@ -83,7 +83,7 @@ configure(this) {
             targetExclude '**/build/**', '**/bin/**', '**/out/**'
             importOrder() //sort imports alphabetically
             removeUnusedImports()
-            eclipse().configFile "$rootDir/config/formatter.xml"
+            eclipse().configFile "$rootDir/ph-ee-integration-test/config/formatter.xml"
             endWithNewline()
             trimTrailingWhitespace()
             // Enforce style modifier order
@@ -183,12 +183,12 @@ configurations {
     cucumberRuntime {
         extendsFrom testImplementation
     }
-    testlogger {
-        // pick a theme - mocha, standard, plain, mocha-parallel, standard-parallel or plain-parallel
-        theme 'mocha'
-        showSkipped false
-        showStackTraces true
-    }
+}
+testlogger {
+    theme 'mocha' // pick a theme - mocha, standard, plain, mocha-parallel, standard-parallel or plain-parallel
+    showSkipped false
+    showStandardStreams true
+    showStackTraces true
 }
 
 test {

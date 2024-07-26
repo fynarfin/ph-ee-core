@@ -179,3 +179,4 @@ workflows:
             - build_and_push_vouchers_latest_image
           context:
             - DOCKER
+

@@ -23,7 +23,7 @@ jobs:
       TERM: dumb
     steps:
       - checkout
-      - run: rm -f ../ph-ee-env-labs/helm/ph-ee-g2p-sandbox-ci/Chart.lock ../ph-ee-env-labs/helm/ph-ee-g2p-sandbox-ci/requirements.lock ../ph-ee-env-labs/helm/ph-ee-g2p-sandbox-ci/charts/*
+      - run: rm -f ph-ee-env-labs/helm/ph-ee-g2p-sandbox-ci/Chart.lock ph-ee-env-labs/helm/ph-ee-g2p-sandbox-ci/requirements.lock ph-ee-env-labs/helm/ph-ee-g2p-sandbox-ci/charts/*
       - helm/install-helm-client:
           version: "v3.8.2"
       # - run: "sed -i '12s/.*/version: 0.0.0/' helm/ph-ee-g2p-sandbox-ci/Chart.yaml"
@@ -42,8 +42,8 @@ jobs:
             fi
             CHART_URL="https://fynarfin.io/images/fynarfin$JIRA_STORY_DIR/ph-ee-g2p-sandbox-ci-0.0.0$JIRA_STORY"
             if curl --output /dev/null --silent --head --fail "$CHART_URL"; then
-              sed -i "11s@^ *repository:.*\$@  repository: $CHART_URL@" ../ph-ee-env-labs/helm/ph-ee-g2p-sandbox-ci/Chart.yaml
-              sed -i "12s@^ *version:.*\$@  version: 0.0.0$JIRA_STORY@" ../ph-ee-env-labs/helm/ph-ee-g2p-sandbox-ci/Chart.yaml
+              sed -i "11s@^ *repository:.*\$@  repository: $CHART_URL@" ph-ee-env-labs/helm/ph-ee-g2p-sandbox-ci/Chart.yaml
+              sed -i "12s@^ *version:.*\$@  version: 0.0.0$JIRA_STORY@" ph-ee-env-labs/helm/ph-ee-g2p-sandbox-ci/Chart.yaml
               echo "chart used: < $CHART_URL >"
             else
               CHART_URL="https://fynarfin.io/images/fynarfin/ph-ee-g2p-sandbox-ci-0.0.0"
@@ -51,8 +51,8 @@ jobs:
             fi
             sed -i "6s/.*/version: 0.0.0$JIRA_STORY/" ph-ee-env-labs/helm/ph-ee-g2p-sandbox-ci/Chart.yaml
             cat ph-ee-env-labs/helm/ph-ee-g2p-sandbox-ci/Chart.yaml
-            helm dep up ../ph-ee-env-labs/helm/ph-ee-g2p-sandbox-ci
-            helm package ../ph-ee-env-labs/helm/ph-ee-g2p-sandbox-ci
+            helm dep up ph-ee-env-labs/helm/ph-ee-g2p-sandbox-ci
+            helm package ph-ee-env-labs/helm/ph-ee-g2p-sandbox-ci
             helm repo index .
             echo "$CERT_FILE" | base64 --decode > b64encoded.pem
             chmod 400 b64encoded.pem
@@ -142,7 +142,8 @@ jobs:
     environment:
       TERM: dumb
     steps:
-      - run: rm -f ../ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT/Chart.lock ../ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT/requirements.lock ../ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT/charts/*
+      - checkout
+      - run: rm -f ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT/Chart.lock ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT/requirements.lock ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT/charts/*
       - helm/install-helm-client:
           version: "v3.8.2"
       # - run: "sed -i '12s/.*/version: 0.0.0/' helm/g2p-sandbox-fynarfin-SIT/Chart.yaml"
@@ -160,17 +161,17 @@ jobs:
             fi
             CHART_URL="https://fynarfin.io/images/fynarfin$JIRA_STORY_DIR/ph-ee-g2psandbox-0.0.0$JIRA_STORY"
             if curl --output /dev/null --silent --head --fail "$CHART_URL"; then
-              sed -i "11s@^ *repository:.*\$@  repository: $CHART_URL@" ../ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT/Chart.yaml
-              sed -i "12s@^ *version:.*\$@  version: 0.0.0$JIRA_STORY@" ../ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT/Chart.yaml
+              sed -i "11s@^ *repository:.*\$@  repository: $CHART_URL@" ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT/Chart.yaml
+              sed -i "12s@^ *version:.*\$@  version: 0.0.0$JIRA_STORY@" ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT/Chart.yaml
               echo "chart used: < $CHART_URL >"
             else
               CHART_URL="https://fynarfin.io/images/fynarfin/ph-ee-g2psandbox-0.0.0"
               echo "chart used: < $CHART_URL >"
             fi
-            sed -i "6s/.*/version: 0.2.0$JIRA_STORY/" ../ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT/Chart.yaml
-            cat ../ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT/Chart.yaml
-            helm dep up ../ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT
-            helm package ../ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT
+            sed -i "6s/.*/version: 0.2.0$JIRA_STORY/" ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT/Chart.yaml
+            cat ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT/Chart.yaml
+            helm dep up ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT
+            helm package ph-ee-env-labs/helm/g2p-sandbox-fynarfin-SIT
             helm repo index .
             echo "$CERT_FILE" | base64 --decode > b64encoded.pem
             chmod 400 b64encoded.pem
@@ -185,7 +186,7 @@ jobs:
       TERM: dumb
     steps:
       - checkout
-      - run: rm -f ../ph-ee-env-template/helm/g2p-sandbox-security/Chart.lock ../ph-ee-env-template/helm/g2p-sandbox-security/requirements.lock ../ph-ee-env-template/helm/g2p-sandbox-security/charts/*
+      - run: rm -f ph-ee-env-template/helm/g2p-sandbox-security/Chart.lock ph-ee-env-template/helm/g2p-sandbox-security/requirements.lock ph-ee-env-template/helm/g2p-sandbox-security/charts/*
       - helm/install-helm-client:
           version: "v3.8.2"
       - run:
@@ -202,19 +203,19 @@ jobs:
             fi
             CHART_URL="https://fynarfin.io/images/fynarfin$JIRA_STORY_DIR/ph-ee-engine-0.0.0-SNAPSHOT$JIRA_STORY"
             if curl --output /dev/null --silent --head --fail "$CHART_URL"; then
-              sed -i "10s@^ *repository:.*\$@  repository: $CHART_URL@" ../ph-ee-env-template/helm/g2p-sandbox-security/Chart.yaml
-              sed -i "11s@^ *version:.*\$@  version: 0.0.0-SNAPSHOT$JIRA_STORY@" ../ph-ee-env-template/helm/g2p-sandbox-security/Chart.yaml
+              sed -i "10s@^ *repository:.*\$@  repository: $CHART_URL@" ph-ee-env-template/helm/g2p-sandbox-security/Chart.yaml
+              sed -i "11s@^ *version:.*\$@  version: 0.0.0-SNAPSHOT$JIRA_STORY@" ph-ee-env-template/helm/g2p-sandbox-security/Chart.yaml
               echo "chart used: < $CHART_URL >"
             else
               CHART_URL="https://fynarfin.io/images/fynarfin/ph-ee-engine-0.0.0-SNAPSHOT"
               echo "chart used: < $CHART_URL >"
             fi
-            sed -i "5s/.*/version: 0.0.0$JIRA_STORY/" ../ph-ee-env-template/helm/g2p-sandbox-security/Chart.yaml
-            cat ../ph-ee-env-template/helm/g2p-sandbox-security/Chart.yaml
-            # - run: "sed -i '4s/.*/version: 0.0.0-SNAPSHOT/' ../ph-ee-env-template/helm/g2p-sandbox-security/requirements.yaml"
+            sed -i "5s/.*/version: 0.0.0$JIRA_STORY/" ph-ee-env-template/helm/g2p-sandbox-security/Chart.yaml
+            cat ph-ee-env-template/helm/g2p-sandbox-security/Chart.yaml
+            # - run: "sed -i '4s/.*/version: 0.0.0-SNAPSHOT/' ph-ee-env-template/helm/g2p-sandbox-security/requirements.yaml"
             # SED & replace dependency with 0.0.0
-            helm dep up ../ph-ee-env-template/helm/g2p-sandbox-security
-            helm package ../ph-ee-env-template/helm/g2p-sandbox-security
+            helm dep up ph-ee-env-template/helm/g2p-sandbox-security
+            helm package ph-ee-env-template/helm/g2p-sandbox-security
             helm repo index .
             echo "$CERT_FILE" | base64 --decode > b64encoded.pem
             chmod 400 b64encoded.pem

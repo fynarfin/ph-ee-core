@@ -19,3 +19,4 @@ public interface BillInquiryApi {
             @RequestHeader(value = "Payer-FSP-Id") String payerFspId, @PathVariable(value = "billId") String billId,
             @RequestParam(value = "fields", defaultValue = "inquiry") String field) throws ExecutionException, InterruptedException;
 }
+

@@ -622,21 +622,33 @@ jobs:
           command: |
             if git diff --quiet HEAD^ HEAD ph-ee-bill-pay; then
               echo "No changes in ph-ee-bill-pay, skipping build."
-              exit 0
+              echo "export BUILD_BILLPAY=false" >> $BASH_ENV
+            else
+              echo "export BUILD_BILLPAY=true" >> $BASH_ENV
             fi
       - run:
           name: Build Docker image
           command: |
-            cd ph-ee-bill-pay
-            ./gradlew checkstyleMain
-            ./gradlew bootJar
-            docker build -t fynarfin/ph-ee-bill-pay:latest .
-            if [ "$CIRCLE_BRANCH" != "develop" ]; then
-              PR_NUMBER=$(basename $CIRCLE_PULL_REQUEST)
-              PR_TITLE=$(curl -sSL "https://api.github.com/repos/fynarfin/$CIRCLE_PR_REPONAME/pulls/$PR_NUMBER" | jq -r '.title')
-              JIRA_STORY=$(echo $PR_TITLE | cut -d "[" -f2 | cut -d "]" -f1 | tr '[A-Z]' '[a-z]')
-              if [ -z "$JIRA_STORY" ]; then echo "Invalid PR title" && exit 1; else echo "Ticket NO: $JIRA_STORY"; fi
-              docker image tag fynarfin/ph-ee-bill-pay:latest fynarfin/ph-ee-bill-pay:$JIRA_STORY
+            if [ "$BUILD_BILLPAY" == "true" ]; then
+              # Set environment variables
+              IMAGE_TAG=$CIRCLE_TAG
+
+              # Check if the Docker image with the same tag already exists in Docker Hub
+              if curl -s -f -u "$DOCKERHUB_USERNAME":"$DOCKERHUB_PASSWORD" "https://hub.docker.com/v2/repositories/fynarfin/ph-ee-bill-pay/tags/$IMAGE_TAG" > /dev/null; then
+                echo "Skipping the build and push as the tag $IMAGE_TAG already exists in Docker Hub."
+                exit 0
+              fi
+
+              # Build and tag the Docker image
+              cd ph-ee-bill-pay
+              ./gradlew bootJar
+              docker build -t "fynarfin/ph-ee-bill-pay:$IMAGE_TAG" .
+
+              # Push the Docker image to Docker Hub
+              docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
+              docker push "fynarfin/ph-ee-bill-pay:$IMAGE_TAG"
+            else
+              echo "Skipping build and push as there are no changes in ph-ee-bill-pay."
             fi
       - run:
           name: Login to DockerHub

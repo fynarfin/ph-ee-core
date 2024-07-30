@@ -244,7 +244,7 @@ jobs:
         default: "minikube"
         type: string
       service-file-path:
-        default: https://raw.githubusercontent.com/fynarfin/ph-ee-env-labs/develop/.circleci/services.txt
+        default: https://raw.githubusercontent.com/fynarfin/ph-ee-core/ph-ee-env-labs/develop/.circleci/services.txt
         type: string
       chart-base-url:
         default: https://fynarfin.io/images/fynarfin
@@ -587,6 +587,13 @@ jobs:
       - setup_remote_docker:
           version: 20.10.14
       - run:
+          name: Check for changes in billPay
+          command: |
+            if git diff --quiet HEAD^ HEAD ph-ee-bill-pay; then
+              echo "No changes in ph-ee-bill-pay, skipping build."
+              exit 0
+            fi
+      - run:
           name: Build and Push Docker tag Image
           command: |
             IMAGE_TAG=$CIRCLE_TAG
@@ -610,6 +617,13 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 20.10.14
+      - run:
+          name: Check for changes in billPay
+          command: |
+            if git diff --quiet HEAD^ HEAD ph-ee-bill-pay; then
+              echo "No changes in ph-ee-bill-pay, skipping build."
+              exit 0
+            fi
       - run:
           name: Build Docker image
           command: |

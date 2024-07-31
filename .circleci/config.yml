@@ -767,6 +767,7 @@ workflows:
   version: 2
   build-and-deploy:
     jobs:
+      - check_for_changes
       - build_and_push_billPay_tag_image:
           filters:
             tags:
@@ -774,6 +775,8 @@ workflows:
           context:
             - DOCKER
       - build_and_push_billPay_latest_image:
+          requires:
+            - check_for_changes
           context:
             - DOCKER
       - build_and_push_vouchers_tag_image:

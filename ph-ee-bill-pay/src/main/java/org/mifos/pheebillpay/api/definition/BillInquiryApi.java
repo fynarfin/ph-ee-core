@@ -20,3 +20,4 @@ public interface BillInquiryApi {
             @RequestParam(value = "fields", defaultValue = "inquiry") String field) throws ExecutionException, InterruptedException;
 }
 
+

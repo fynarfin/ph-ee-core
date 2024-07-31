@@ -1,0 +1,15 @@
+*.iml
+target
+.idea
+.project
+.classpath
+.settings
+bin
+bin/
+.gradle
+.gradle/
+build
+.DS_Store
+createDDL.jdbc
+console*.log
+

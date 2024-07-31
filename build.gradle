@@ -1,0 +1,32 @@
+allprojects {
+    repositories {
+        mavenLocal()
+        maven {
+            url = uri('https://repo.maven.apache.org/maven2')
+        }
+
+        maven {
+            url = uri('https://jfrog.sandbox.fynarfin.io/artifactory/fyn-libs-snapshot')
+        }
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    version = '0.0.1-SNAPSHOT'
+
+    sourceCompatibility = '17'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
+

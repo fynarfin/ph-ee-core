@@ -1,0 +1,79 @@
+server:
+  port: 8080
+
+spring:
+  main:
+    cloud-platform:
+      JAVA_TOOL_OPTIONS: "-Xmx4G"
+
+  jpa:
+    show-sql: false
+    generate-ddl: false
+
+  cache:
+    time_to_live: 3
+    time_to_idle: 3
+    max_entries_heap: 10
+    max_byte_off_heap: 10
+    max_byte_disk: 10
+
+  datasource:
+    url: jdbc:mysql://operationsmysql:3306/identity_account_mapper
+    username: root
+    password: mysql
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  hikari:
+    minimum-idle: 5
+    maximum-pool-size: 20
+    pool-name: MyHikariCP
+    connection-test-query: SELECT 1
+    connection-timeout: 30000
+    idle-timeout: 600000
+    max-lifetime: 1800000
+    leak-detection-threshold: 2000
+    validation-timeout: 5000
+
+logging:
+  level:
+    ROOT: DEBUG
+
+async:
+  core-pool-size: 5
+  max-pool-size: 5
+  queue-capacity: 50
+
+gsma_connector:
+  contactpoint: "https://ams-mifos.sandbox.fynarfin.io"
+  endpoint:
+    account-status: "/ams/accounts/identifierType/identifierId/status"
+
+mojaloop-connector:
+  contactpoint: "http://account-lookup-service.sandbox.fynarfin.io"
+  endpoint:
+    get-parties: "/parties/"
+    callback-register: "/participants/fsp/endpoints"
+
+account_validation_enabled : false
+account_validator_connector: "gsma"
+callback_enabled: false
+zeebe:
+  client:
+    max-execution-threads: 50
+    evenly-allocated-max-jobs: 100
+    poll-interval: 10
+  #    number-of-workers: 15
+  #    evenly-allocated-max-jobs: "#{${zeebe.client.max-execution-threads} / ${zeebe.client.number-of-workers}}"
+  broker:
+    contactpoint: "zeebe-zeebe-gateway:26500"
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      liveness:
+        enabled: true
+      readiness:
+        enabled: true
+
+isExternalLookup: true

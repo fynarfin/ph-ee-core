@@ -1,0 +1,237 @@
+camel:
+  server-port: 5000
+  disable-ssl: false
+  springboot:
+    main-run-controller: true
+    dataformat:
+      json-jackson:
+        auto-discover-object-mapper: true
+
+kafka:
+  bootstrapAddress: "kafka:9092"
+  topic:
+    gsma:
+      name: gsma
+    slcb:
+      name: slcb
+
+application:
+  bucket-name: paymenthub-ee
+
+zeebe:
+  client:
+    max-execution-threads: 50
+    evenly-allocated-max-jobs: 1000
+    poll-interval: 10
+    #    max-execution-threads: 100
+    #    number-of-workers: 8
+    #    evenly-allocated-max-jobs: "#{${zeebe.client.max-execution-threads} / ${zeebe.client.number-of-workers}}"
+  broker:
+    contactpoint: "zeebe-zeebe-gateway:26500"
+
+operations-app:
+  contactpoint: "https://ops-bk.sandbox.mifos.io"
+  username: "mifos"
+  password: "password"
+  endpoints:
+    auth: "/oauth/token"
+    batch-summary: "/api/v1/batch"
+    batch-transaction: "/api/v1/batch/transactions"
+    batch-aggregate: "/api/v1/batch/"
+
+mock-payment-schema:
+  contactpoint: "http://ph-ee-connector-mock-payment-schema:8080"
+  endpoints:
+    authorization: "/batches/"
+
+channel:
+  hostname: "https://ph-ee-connector-channel:8443"
+
+cloud:
+  aws:
+    enabled: true
+    s3BaseUrl: "https://s3.ap-south-1.amazonaws.com"
+    credentials:
+      access-key: ${AWS_ACCESS_KEY:access_key_from_aws}
+      secret-key: ${AWS_SECRET_KEY:secret_key_from_aws}
+
+    region:
+      static: ap-south-1
+    stack:
+      auto: false
+  azure:
+    enabled: false
+    blob:
+      connection-string:
+
+
+tenants: "ibank-usa,ibank-india"
+
+bpmn:
+  flows:
+    payment-transfer: "PayerFundTransfer-{dfspid}"
+    transaction-request: "PayeeTransactionRequest-{dfspid}"
+    party-registration: "PartyRegistration-{dfspid}"
+    gsma-base-transaction: "gsma_base_transaction-{dfspid}"
+    gsma-int-transfer: "gsma_int_transfer-{dfspid}"
+    gsma-payee-process: "gsma_payee_process"
+    gsma-bill-payment: "gsma_bill_payment"
+    gsma-link-based-payment: "gsma_link_transfer"
+    international-remittance-payee: "international_remittance_payee_process-{dfspid}"
+    international-remittance-payer: "international_remittance_payer_process-{dfspid}"
+    debit-party-process: "debit_party_process-{dfspid}"
+    bulk-processor: "bulk_processor-{dfspid}"
+    slcb: "slcb-{dfspid}"
+
+#payment mode moved to a separate application property file for helm rewrite
+
+config:
+  minimum-successful-tx-ratio: 0.90
+  batchAggregate:
+    enable: true
+  partylookup:
+    enable: true
+  authorization:
+    enabled: true
+  approval:
+    enable: true
+  ordering:
+    enable: true
+    field: "payerIdentifier"
+  splitting:
+    enable: true
+    sub-batch-size: 5
+  formatting:
+    enable: false
+    standard: "DEFAULT"
+  mergeback:
+    enable: false
+  backpressure:
+    enable: false
+  completion-threshold-check:
+    enable: false
+    completion-threshold: 95 # in percentage
+    max-retry: 3 #can be as high as 30
+    delay: 2 # in seconds
+  deduplication:
+    enabled: true
+
+callback:
+  max-retry: 3
+  url: "http://httpstat.us/503"
+
+pollingApi:
+  path : "/batch/Summary/"
+  timer: "120"
+
+callback-phases:
+  values:
+    - 20
+    - 40
+    - 60
+    - 80
+    - 100
+
+server:
+  ssl:
+    key-alias: "tomcat-https"
+    key-store: "classpath:keystore.jks"
+    key-store-type: JKS
+    key-password: "password"
+    key-store-password: "password"
+  port: 8443
+
+
+security:
+  jws:
+    enable: true
+    response:
+      enable: true
+
+identity_account_mapper:
+  hostname : "http://ph-ee-identity-account-mapper:80"
+  account_lookup: /beneficiary
+  account_lookup_callback: /accountLookupCallback
+  batch_account_lookup: /accountLookup
+  batch_account_lookup_callback: /batchAccountLookupCallback
+
+bulk_processor:
+  hostname : "https://ph-ee-connector-bulk:8443"
+
+csv:
+  columnNames: "id,request_id,payment_mode,payer_identifier_type,payer_identifier,payee_identifier_type,payee_identifier,amount,currency,note,account_number,program_shortcode,cycle,payee_dfsp_id,batch_id"
+  size : 100000 # in bytes
+
+budget-account:
+  registeringInstitutions:
+    - id: "123"
+      programs:
+        - id: "SocialWelfare"
+          name: "Social Welfare"
+          identifierType: "ACCOUNT"
+          identifierValue: "123456789"
+
+
+management:
+  endpoint:
+    health: 
+      enabled: true
+      probes:
+        enabled: true
+      liveness:
+        enabled: true
+      readiness:
+        enabled: true
+
+payment-mode:
+  mappings:
+    - id: "GSMA"
+      type: "PAYMENT"
+      endpoint: "/channel/gsma/transfer"
+    - id: "MOJALOOP"
+      type: "PAYMENT"
+      endpoint: "/channel/transfer"
+    - id: "SLCB"
+      type: "BULK"
+      endpoint: "bulk_connector_{MODE}-{dfspid}"
+    - id: "CLOSEDLOOP"
+      type: "BULK"
+      endpoint: "bulk_connector_{MODE}-{dfspid}"
+      debulkingDfspid: "wakanda"
+batch-authorization:
+  callback-url: "https://ph-ee-connector-bulk:8443/authorization/callback"
+
+pubsub:
+  room:
+    code: "covid-19"
+    class: "GOV"
+  event:
+    type: "bulk"
+
+security-server:
+  country: "INDIA"
+  organisation: mifos
+  host: https://SECURITYSERVER
+  baseuri: /r1/{country}/GOV/{orgs}
+  endpoints:
+    subs: /room/subs
+
+gov-stack-client:
+  header-key: "X-GovStack-Client"
+  header-value: "PAYMENT-BB"
+
+
+bpmns:
+  tenants:
+    - id: "gorilla"
+      flows:
+        batch-transactions: "bulk_processor-{dfspid}"
+    - id: "wakanda"
+      flows:
+        batch-transactions: "bulk_processor-{dfspid}"
+    - id: "rhino"
+      flows:
+        batch-transactions: "bulk_processor_account_lookup-{dfspid}"
+    - id: "lion"
+      flows:
+        batch-transactions: "bulk_processor-{dfspid}"

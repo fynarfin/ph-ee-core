@@ -1,0 +1,12 @@
+charts/
+helm/*.tgz
+.idea/
+
+*.iml
+**/*.lock
+
+.DS_Store
+.env
+index.yaml
+helm/index.yaml
+*.tgz

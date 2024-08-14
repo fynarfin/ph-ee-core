@@ -2323,5 +2323,5 @@ workflows:
             - slack
             - Ngrok
           requires:
-            - build-g2p-sandbox-ci-chart
+            - build-and-host-g2p-sandbox
 

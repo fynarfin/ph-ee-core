@@ -2250,8 +2250,8 @@ jobs:
             echo "Deploying to environment..."
             # Add your deployment scripts/commands here
             echo "Deployment completed."
-  
-  
+
+
 
 workflows:
   version: 2
@@ -2462,4 +2462,3 @@ workflows:
             - Ngrok
           requires:
             - build-g2p-sandbox-ci-chart
-

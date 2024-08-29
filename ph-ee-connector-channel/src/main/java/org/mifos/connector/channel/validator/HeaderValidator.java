@@ -7,7 +7,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
-
 import lombok.extern.slf4j.Slf4j;
 import org.mifos.connector.channel.utils.ChannelValidatorsEnum;
 import org.mifos.connector.channel.utils.HeaderConstants;
@@ -67,8 +66,7 @@ public class HeaderValidator {
                     ChannelValidatorsEnum.INVALID_X_CALLBACK_URL_LENGTH);
         } else {
             validatorBuilder.validateFieldIgnoreNullAndMaxLengthWithFailureCode(resource, HeaderConstants.X_Callback_URL,
-                    request.getHeader(HeaderConstants.X_Callback_URL), 100,
-                    ChannelValidatorsEnum.INVALID_X_CALLBACK_URL_LENGTH);
+                    request.getHeader(HeaderConstants.X_Callback_URL), 100, ChannelValidatorsEnum.INVALID_X_CALLBACK_URL_LENGTH);
         }
 
         return handleValidationErrors(validatorBuilder);

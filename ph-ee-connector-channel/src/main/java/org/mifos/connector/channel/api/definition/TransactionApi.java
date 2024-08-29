@@ -25,9 +25,9 @@ public interface TransactionApi {
             @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = InvalidRequestBodyResponseDto.class))) })
     @PostMapping("/channel/transactionRequest")
     ResponseEntity<GsmaP2PResponseDto> transaction(@RequestHeader(value = "Platform-TenantId") String tenant,
-                                                   @RequestHeader(value = CLIENTCORRELATIONID, required = false) String correlationId,
-                                                   @RequestHeader(value = CALLBACK_URL, required = false) String callbackURL,
-                                                   @RequestBody TransactionChannelRequestDTO requestBody) throws JsonProcessingException;
+            @RequestHeader(value = CLIENTCORRELATIONID, required = false) String correlationId,
+            @RequestHeader(value = CALLBACK_URL, required = false) String callbackURL,
+            @RequestBody TransactionChannelRequestDTO requestBody) throws JsonProcessingException;
 
     @PostMapping("/channel/transaction/{" + TRANSACTION_ID + "}/resolve")
     void transactionResolve(@RequestBody String requestBody) throws JsonProcessingException;

@@ -23,6 +23,9 @@ import static org.mifos.connector.channel.zeebe.ZeebeVariables.PARTY_ID_TYPE;
 import static org.mifos.connector.channel.zeebe.ZeebeVariables.PAYMENT_SCHEME;
 import static org.mifos.connector.channel.zeebe.ZeebeVariables.TENANT_ID;
 import static org.mifos.connector.channel.zeebe.ZeebeVariables.TRANSACTION_ID;
+import static org.mifos.connector.channel.camel.config.CamelProperties.*;
+import static org.mifos.connector.channel.zeebe.ZeebeMessages.OPERATOR_MANUAL_RECOVERY;
+import static org.mifos.connector.channel.zeebe.ZeebeVariables.*;
 import static org.mifos.connector.common.mojaloop.type.InitiatorType.CONSUMER;
 import static org.mifos.connector.common.mojaloop.type.Scenario.TRANSFER;
 import static org.mifos.connector.common.mojaloop.type.TransactionRole.PAYEE;
@@ -32,6 +35,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import io.camunda.zeebe.client.ZeebeClient;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
+import javax.net.ssl.HttpsURLConnection;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.component.bean.validator.BeanValidationException;
@@ -73,25 +83,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import javax.net.ssl.HttpsURLConnection;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
-
-import static java.util.Base64.getEncoder;
-import static java.util.Spliterators.spliteratorUnknownSize;
-import static java.util.stream.StreamSupport.stream;
-import static org.mifos.connector.channel.camel.config.CamelProperties.*;
-import static org.mifos.connector.channel.zeebe.ZeebeMessages.OPERATOR_MANUAL_RECOVERY;
-import static org.mifos.connector.channel.zeebe.ZeebeVariables.*;
-import static org.mifos.connector.common.mojaloop.type.InitiatorType.CONSUMER;
-import static org.mifos.connector.common.mojaloop.type.Scenario.TRANSFER;
-import static org.mifos.connector.common.mojaloop.type.TransactionRole.PAYEE;
-import static org.mifos.connector.common.mojaloop.type.TransactionRole.PAYER;
 
 @Component
 public class ChannelRouteBuilder extends ErrorHandlerRouteBuilder {

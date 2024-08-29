@@ -7,6 +7,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
+
+import lombok.extern.slf4j.Slf4j;
 import org.mifos.connector.channel.utils.ChannelValidatorsEnum;
 import org.mifos.connector.channel.utils.HeaderConstants;
 import org.mifos.connector.common.channel.dto.PhErrorDTO;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class HeaderValidator {
 
@@ -24,6 +27,9 @@ public class HeaderValidator {
 
     @Value("#{'${default_headers}'.split(',')}")
     private List<String> defaultHeader;
+
+    @Value("${mtn-transaction-request.tenant}")
+    private String mtnTenant;
 
     private static final String resource = "channelValidator";
 
@@ -53,6 +59,17 @@ public class HeaderValidator {
         validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, HeaderConstants.PLATFORM_TENANT_ID,
                 request.getHeader(HeaderConstants.PLATFORM_TENANT_ID), ChannelValidatorsEnum.INVALID_PLATFORM_TENANT_ID, 20,
                 ChannelValidatorsEnum.INVALID_PLATFORM_TENANT_ID_LENGTH);
+
+        // Checks for X-CallbackURL
+        if (request.getHeader(HeaderConstants.PLATFORM_TENANT_ID).equals(mtnTenant)) {
+            validatorBuilder.validateFieldIsNullAndMaxLengthWithFailureCode(resource, HeaderConstants.X_Callback_URL,
+                    request.getHeader(HeaderConstants.X_Callback_URL), ChannelValidatorsEnum.INVALID_X_CALLBACK_URL, 100,
+                    ChannelValidatorsEnum.INVALID_X_CALLBACK_URL_LENGTH);
+        } else {
+            validatorBuilder.validateFieldIgnoreNullAndMaxLengthWithFailureCode(resource, HeaderConstants.X_Callback_URL,
+                    request.getHeader(HeaderConstants.X_Callback_URL), 100,
+                    ChannelValidatorsEnum.INVALID_X_CALLBACK_URL_LENGTH);
+        }
 
         return handleValidationErrors(validatorBuilder);
     }

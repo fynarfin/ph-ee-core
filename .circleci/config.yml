@@ -2158,6 +2158,109 @@ jobs:
             else
                 echo "Tag already exists. Skipping deployment."
             fi
+
+    build_integration_test:
+      docker:
+        - image: cimg/openjdk:17.0.0-node
+        - image: docker:17.05.0-ce-git
+      working_directory: ~/repo
+      environment:
+        JVM_OPTS: -Xmx512m
+        TERM: dumb
+      steps:
+        - checkout
+        - setup_remote_docker
+        - aws-ecr/build-and-push-image:
+            aws-access-key-id: AWS_ACCESS_KEY_ID
+            aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+            extra-build-args: "--compress"
+            push-image: true
+            region: "$REGION"
+            registry-id: AWS_REGISTRY_ID
+            repo: phee-integration-test
+            repo-scan-on-push: true
+            role-arn: arn:aws:iam::419830066942:role/CustomAdmin
+            tag: latest
+
+  build_and_push_integration_test_tag_image:
+    executor: docker-executor
+    environment:
+      JVM_OPTS: -Xmx512m
+      TERM: dumb
+      GITHUB_TOKEN: ${GITHUB_TOKEN}  # Add the GitHub token as an environment variable
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.24
+      - run:
+          name: Build and Push Docker tag Image
+          command: |
+            cd ph-ee-integration-test
+            # Set environment variables
+            IMAGE_TAG=$CIRCLE_TAG
+
+            # Check if the Docker image with the same tag already exists in Docker Hub
+            if curl -s -f -u "$DOCKERHUB_USERNAME":"$DOCKERHUB_PASSWORD" "https://hub.docker.com/v2/repositories/fynarfin/ph-ee-integration-test/tags/$IMAGE_TAG" > /dev/null; then
+              echo "Skipping the build and push as the tag $IMAGE_TAG already exists in Docker Hub."
+              exit 0
+            fi
+
+            # Build and tag the Docker image
+            ./gradlew bootJar
+            docker build -t "fynarfin/ph-ee-integration-test:$IMAGE_TAG" .
+
+            # Push the Docker image to Docker Hub
+            docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
+            docker push "fynarfin/ph-ee-integration-test:$IMAGE_TAG"
+
+          # when: always  # The job will be executed even if there's no match for the tag filter
+
+  build_and_push_integration_test_latest_image:
+    executor: docker-executor
+    environment:
+      JVM_OPTS: -Xmx512m
+      TERM: dumb
+    steps:
+      - checkout
+      # Install Docker to build and push the image
+      - setup_remote_docker:
+          version: 20.10.24
+
+      # Build the Docker image
+      - run:
+          name: Build Docker image
+          command: |
+            cd ph-ee-integration-test
+            ./gradlew checkstyleMain
+            ./gradlew checkstyleTest
+            ./gradlew bootJar
+            docker build -t fynarfin/ph-ee-integration-test:latest .
+            if [ "$CIRCLE_BRANCH" != "develop" ]; then
+              PR_NUMBER=$(basename $CIRCLE_PULL_REQUEST)
+              PR_TITLE=$(curl -sSL "https://api.github.com/repos/fynarfin/$CIRCLE_PROJECT_REPONAME/pulls/$PR_NUMBER" | jq -r '.title')
+              JIRA_STORY=$(echo $PR_TITLE | cut -d "[" -f2 | cut -d "]" -f1 | tr '[A-Z]' '[a-z]')
+              if [ -z "$JIRA_STORY" ]; then echo "Invalid PR title" && exit 1; else echo "Ticket NO: $JIRA_STORY"; fi
+              docker image tag fynarfin/ph-ee-integration-test:latest fynarfin/ph-ee-integration-test:$JIRA_STORY
+            fi
+
+      # Log in to DockerHub using environment variables
+      - run:
+          name: Login to DockerHub
+          command: echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
+
+      # Push the Docker image to DockerHub
+      - run:
+          name: Push Docker image to DockerHub
+          command: |
+            if [ "$CIRCLE_BRANCH" = "develop" ]; then
+            docker push fynarfin/ph-ee-integration-test:latest
+            fi
+            if [ "$CIRCLE_BRANCH" != "develop" ]; then
+            PR_NUMBER=$(basename $CIRCLE_PULL_REQUEST)
+            PR_TITLE=$(curl -sSL "https://api.github.com/repos/fynarfin/$CIRCLE_PROJECT_REPONAME/pulls/$PR_NUMBER" | jq -r '.title')
+            JIRA_STORY=$(echo $PR_TITLE | cut -d "[" -f2 | cut -d "]" -f1 | tr '[A-Z]' '[a-z]')
+            docker push fynarfin/ph-ee-integration-test:${JIRA_STORY}
+            fi
   
 
   deploy:
@@ -2192,6 +2295,19 @@ workflows:
       - check_for_changes_bulk_processor
       - check_for_changes_importer_es
       - check_for_changes_importer_rdbms
+      - build_integration_test:
+          context:
+            - AWS
+            - slack
+      - build_and_push_integration_test_tag_image:
+          filters:
+            tags:
+              only: /^v\d+\.\d+\.\d+([-rc.0-9]+)*?$/  # Match tags in the format v1.2.3
+          context:
+            - DOCKER
+      - build_and_push_integration_test_latest_image:
+          context:
+            - DOCKER
       - build_and_push_vouchers_tag_image:
           filters:
             tags:
@@ -2337,6 +2453,9 @@ workflows:
             - build_and_push_notification_latest_image
             - build_and_push_message_gateway_latest_image
             - build_and_push_message_gateway_tag_image
+            - build_and_push_integration_test_tag_image
+            - build_and_push_integration_test_latest_image
+            - build_integration_test
           context:
             - AWS
             - Helm

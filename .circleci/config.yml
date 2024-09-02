@@ -2159,28 +2159,28 @@ jobs:
                 echo "Tag already exists. Skipping deployment."
             fi
 
-    build_integration_test:
-      docker:
-        - image: cimg/openjdk:17.0.0-node
-        - image: docker:17.05.0-ce-git
-      working_directory: ~/repo
-      environment:
-        JVM_OPTS: -Xmx512m
-        TERM: dumb
-      steps:
-        - checkout
-        - setup_remote_docker
-        - aws-ecr/build-and-push-image:
-            aws-access-key-id: AWS_ACCESS_KEY_ID
-            aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-            extra-build-args: "--compress"
-            push-image: true
-            region: "$REGION"
-            registry-id: AWS_REGISTRY_ID
-            repo: phee-integration-test
-            repo-scan-on-push: true
-            role-arn: arn:aws:iam::419830066942:role/CustomAdmin
-            tag: latest
+  build_integration_test:
+    docker:
+      - image: cimg/openjdk:17.0.0-node
+      - image: docker:17.05.0-ce-git
+    working_directory: ~/repo
+    environment:
+      JVM_OPTS: -Xmx512m
+      TERM: dumb
+    steps:
+      - checkout
+      - setup_remote_docker
+      - aws-ecr/build-and-push-image:
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          extra-build-args: "--compress"
+          push-image: true
+          region: "$REGION"
+          registry-id: AWS_REGISTRY_ID
+          repo: phee-integration-test
+          repo-scan-on-push: true
+          role-arn: arn:aws:iam::419830066942:role/CustomAdmin
+          tag: latest
 
   build_and_push_integration_test_tag_image:
     executor: docker-executor

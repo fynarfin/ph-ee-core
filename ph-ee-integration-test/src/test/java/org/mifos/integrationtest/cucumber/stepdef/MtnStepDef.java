@@ -1,7 +1,11 @@
 package org.mifos.integrationtest.cucumber.stepdef;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.getAllServeEvents;
+import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
+
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import io.cucumber.core.internal.com.fasterxml.jackson.core.JsonProcessingException;
 import io.cucumber.core.internal.com.fasterxml.jackson.databind.JsonNode;
 import io.cucumber.core.internal.com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.And;
@@ -11,6 +15,8 @@ import io.cucumber.java.en.When;
 import io.restassured.RestAssured;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.specification.RequestSpecification;
+import java.io.IOException;
+import java.util.List;
 import org.mifos.connector.common.channel.dto.TransactionChannelRequestDTO;
 import org.mifos.connector.common.mojaloop.dto.MoneyData;
 import org.mifos.connector.common.mojaloop.dto.Party;
@@ -22,15 +28,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.io.IOException;
-import java.util.List;
+public class MtnStepDef extends BaseStepDef {
 
-import static com.github.tomakehurst.wiremock.client.WireMock.getAllServeEvents;
-import static com.google.common.truth.Truth.assertThat;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.awaitility.Awaitility.await;
-
-public class MtnStepDef extends BaseStepDef{
     @Autowired
     MockServerStepDef mockServerStepDef;
 
@@ -68,11 +67,9 @@ public class MtnStepDef extends BaseStepDef{
 
         scenarioScopeState.tenant = tenant;
         scenarioScopeState.response = RestAssured.given(requestSpec).header("Content-Type", "application/json")
-                .header(tenantHeader, scenarioScopeState.tenant)
-                .header("X-CallbackURL", identityMapperConfig.callbackURL)
-                .baseUri(channelConnectorConfig.channelConnectorContactPoint)
-                .body(scenarioScopeState.createTransactionChannelRequestBody).expect()
-                .spec(new ResponseSpecBuilder().expectStatusCode(expectedStatus).build()).when()
+                .header(tenantHeader, scenarioScopeState.tenant).header("X-CallbackURL", identityMapperConfig.callbackURL)
+                .baseUri(channelConnectorConfig.channelConnectorContactPoint).body(scenarioScopeState.createTransactionChannelRequestBody)
+                .expect().spec(new ResponseSpecBuilder().expectStatusCode(expectedStatus).build()).when()
                 .post(channelConnectorConfig.transferReqEndpoint).andReturn().asString();
 
         logger.info("Transaction Request Response: {}", scenarioScopeState.response);
@@ -84,11 +81,9 @@ public class MtnStepDef extends BaseStepDef{
 
         scenarioScopeState.tenant = tenant;
         scenarioScopeState.response = RestAssured.given(requestSpec).header("Content-Type", "application/json")
-                .header(tenantHeader, scenarioScopeState.tenant)
-                .header("X-CallbackURL", identityMapperConfig.callbackURL + stub)
-                .baseUri(channelConnectorConfig.channelConnectorContactPoint)
-                .body(scenarioScopeState.createTransactionChannelRequestBody).expect()
-                .spec(new ResponseSpecBuilder().expectStatusCode(expectedStatus).build()).when()
+                .header(tenantHeader, scenarioScopeState.tenant).header("X-CallbackURL", identityMapperConfig.callbackURL + stub)
+                .baseUri(channelConnectorConfig.channelConnectorContactPoint).body(scenarioScopeState.createTransactionChannelRequestBody)
+                .expect().spec(new ResponseSpecBuilder().expectStatusCode(expectedStatus).build()).when()
                 .post(channelConnectorConfig.transferReqEndpoint).andReturn().asString();
 
         logger.info("Transaction Request Response: {}", scenarioScopeState.response);
@@ -124,8 +119,6 @@ public class MtnStepDef extends BaseStepDef{
         });
     }
 
-
-
     @And("I should have {string} and {string} in mtn callback response")
     public void iShouldHaveAndInResponse(String status, String statusValue) {
         assertThat(scenarioScopeState.callbackBody).contains(status);
@@ -137,9 +130,5 @@ public class MtnStepDef extends BaseStepDef{
     public void setTenantAsNull() {
         scenarioScopeState.tenant = null;
     }
-
-
-
-
 
 }

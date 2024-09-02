@@ -10,6 +10,8 @@ import io.cucumber.java.en.When;
 import io.restassured.RestAssured;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.specification.RequestSpecification;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.json.JSONException;
@@ -88,5 +90,151 @@ public class GetTxnApiDef extends BaseStepDef {
                 .when().post("/channel/collection").andReturn().asString();
         CollectionResponse response = (new Gson()).fromJson(json, CollectionResponse.class);
         assertThat(response.getTransactionId()).isNotEmpty();
+    }
+    @When("I call the get txn API with end date before start date expecting status of {int}")
+    public void iCallTheGetTxnAPIWithEndDateBeforeStartDateExpectingStatusOf(int expectedStatus) throws JSONException {
+        RequestSpecification requestSpec = Utils.getDefaultSpec(scenarioScopeState.tenant);
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = startDate.minusDays(5);
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
+
+        // Set the dates with endDate before startDate
+        String startfrom = startDate.format(formatter);
+        String startto = endDate.format(formatter);
+
+        String endpoint = String.format("%s?startfrom=%s&startto=%s", operationsAppConfig.transactionRequestsEndpoint, startfrom, startto);
+        String fullUrl = operationsAppConfig.operationAppContactPoint + endpoint;
+
+        logger.info("Calling endpoint: {}", fullUrl);
+
+        scenarioScopeState.response = RestAssured.given(requestSpec).baseUri(operationsAppConfig.operationAppContactPoint).expect()
+                .spec(new ResponseSpecBuilder().expectStatusCode(expectedStatus).build()).when().get(endpoint).andReturn().asString();
+
+        logger.info("Calling Transaction request with future date range Response: {}", scenarioScopeState.response);
+    }
+
+    @When("I call the get txn API with empty query params expecting status of {int}")
+    public void iCallTheGetTxnAPIWithEmptyQueryParamsExpectingStatusOf(int expectedStatus) {
+        RequestSpecification requestSpec = Utils.getDefaultSpec(scenarioScopeState.tenant);
+
+        // Set an empty value for start from
+        String emptyStartDate = "";
+
+        // the endpoint with the empty start from parameter
+        String endpoint = String.format("%s?startfrom=%s", operationsAppConfig.transactionRequestsEndpoint, emptyStartDate);
+        String fullUrl = operationsAppConfig.operationAppContactPoint + endpoint;
+
+        logger.info("Calling endpoint with empty date: {}", fullUrl);
+
+        scenarioScopeState.response = RestAssured.given(requestSpec).baseUri(operationsAppConfig.operationAppContactPoint).expect()
+                .spec(new ResponseSpecBuilder().expectStatusCode(expectedStatus).build()).when().get(endpoint).andReturn().asString();
+
+        logger.info(" transaction request with empty start date Response: {}", scenarioScopeState.response);
+    }
+
+    @When("I call the get txn API with invalid transactionId expecting status of {int}")
+    public void iCallTheGetTxnAPIWithInvalidTransactionIdExpectingStatusOf(int expectedStatus) {
+        RequestSpecification requestSpec = Utils.getDefaultSpec(scenarioScopeState.tenant);
+
+        // Set the transactionId value to a random invalid value
+        String transactionId = "abcdefgh";
+
+        // Construct the endpoint with the clientCorrelationId parameter
+        String endpoint = String.format("%s?transactionId=%s", operationsAppConfig.transactionRequestsEndpoint, transactionId);
+        String fullUrl = operationsAppConfig.operationAppContactPoint + endpoint;
+
+        logger.info("Calling endpoint with invalid transactionId: {}", fullUrl);
+
+        scenarioScopeState.response = RestAssured.given(requestSpec).baseUri(operationsAppConfig.operationAppContactPoint).expect()
+                .spec(new ResponseSpecBuilder().expectStatusCode(expectedStatus).build()).when().get(endpoint).andReturn().asString();
+
+        logger.info("Get transaction request with invalid transactionId Response: {}", scenarioScopeState.response);
+
+    }
+
+    @When("I call the get txn API with size {int} and page {int} expecting status of {int}")
+    public void iCallTheGetTxnAPIWithSizeAndPageExpectingStatusOf(float size, float page, int expectedStatus) {
+        RequestSpecification requestSpec = Utils.getDefaultSpec(scenarioScopeState.tenant);
+        if (authEnabled) {
+            requestSpec.header("Authorization", "Bearer " + scenarioScopeState.accessToken);
+        }
+
+        String endpoint = String.format("%s?size=%f&page=%f", operationsAppConfig.transactionRequestsEndpoint, size, page);
+        logger.info("Calling Txn request endpoint with size and page: {}", endpoint);
+
+        scenarioScopeState.response = RestAssured.given(requestSpec).baseUri(operationsAppConfig.operationAppContactPoint).expect()
+                .spec(new ResponseSpecBuilder().expectStatusCode(expectedStatus).build()).when().get(endpoint).andReturn().asString();
+
+        logger.info("Txn request with size and page Response: {}", scenarioScopeState.response);
+    }
+
+    @When("I call the get txn API with currency {string} and amount {int} expecting expected status of {int}")
+    public void iCallTheGetTxnAPIWithCurrencyAndAmountExpectingExpectedStatusOf(String currency, float amount, int expectedStatus) {
+        RequestSpecification requestSpec = Utils.getDefaultSpec(scenarioScopeState.tenant);
+        if (authEnabled) {
+            requestSpec.header("Authorization", "Bearer " + scenarioScopeState.accessToken);
+        }
+
+        String endpoint = String.format("%s?currency=%s&amount=%f", operationsAppConfig.transactionRequestsEndpoint, currency, amount);
+        logger.info("Calling get txn request endpoint: {}", endpoint);
+
+        scenarioScopeState.response = RestAssured.given(requestSpec).baseUri(operationsAppConfig.operationAppContactPoint).expect()
+                .spec(new ResponseSpecBuilder().expectStatusCode(expectedStatus).build()).when().get(endpoint).andReturn().asString();
+
+        logger.info("Transaction request with invalid currency and amount Response: {}", scenarioScopeState.response);
+    }
+
+    @When("I call the get txn API with invalid startFrom and startTo format expecting status of {int}")
+    public void iCallTheGetTxnAPIWithInvalidStartFromAndStartToFormatExpectingStatusOf(int expectedStatus) {
+        RequestSpecification requestSpec = Utils.getDefaultSpec(scenarioScopeState.tenant);
+
+        // Set an invalid date format for start from and start to
+        String invalidStartDate = "1111-11-1111";
+        String invalidEndDate = "2222-22-2222";
+
+        // Construct the endpoint with the invalid start from parameter
+        String endpoint = String.format("%s?startfrom=%s&startto=%s", operationsAppConfig.transactionRequestsEndpoint, invalidStartDate,
+                invalidEndDate);
+        String fullUrl = operationsAppConfig.operationAppContactPoint + endpoint;
+
+        logger.info("Calling endpoint with invalid date format: {}", fullUrl);
+
+        scenarioScopeState.response = RestAssured.given(requestSpec).baseUri(operationsAppConfig.operationAppContactPoint).expect()
+                .spec(new ResponseSpecBuilder().expectStatusCode(expectedStatus).build()).when().get(endpoint).andReturn().asString();
+
+        logger.info("Txn request with invalid startFrom and startTo Response: {}", scenarioScopeState.response);
+    }
+
+    @When("I call the get txn API with invalid sorting order expecting status of {int}")
+    public void iCallTheGetTxnAPIWithInvalidSortingOrderExpectingStatusOf(int expectedStatus) {
+        RequestSpecification requestSpec = Utils.getDefaultSpec(scenarioScopeState.tenant);
+
+        String order = "reverse";
+
+        String endpoint = String.format("%s?sortedOrder=%s", operationsAppConfig.transactionRequestsEndpoint, order);
+        String fullUrl = operationsAppConfig.operationAppContactPoint + endpoint;
+
+        logger.info("Calling endpoint with invalid sorting order: {}", fullUrl);
+        scenarioScopeState.response = RestAssured.given(requestSpec).baseUri(operationsAppConfig.operationAppContactPoint).expect()
+                .spec(new ResponseSpecBuilder().expectStatusCode(expectedStatus).build()).when().get(endpoint).andReturn().asString();
+
+        logger.info("Txn request with invalid sorting order Response: {}", scenarioScopeState.response);
+
+    }
+
+    @When("I call the get txn API with invalid sortedBy expecting status of {int}")
+    public void iCallTheGetTxnAPIWithInvalidSortedByExpectingStatusOf(int expectedStatus) {
+        RequestSpecification requestSpec = Utils.getDefaultSpec(scenarioScopeState.tenant);
+
+        String sortedBy = "jupiter";
+
+        String endpoint = String.format("%s?sortedBy=%s", operationsAppConfig.transactionRequestsEndpoint, sortedBy);
+        String fullUrl = operationsAppConfig.operationAppContactPoint + endpoint;
+        logger.info("Calling endpoint with invalid sortingBy: {}", fullUrl);
+
+        scenarioScopeState.response = RestAssured.given(requestSpec).baseUri(operationsAppConfig.operationAppContactPoint).expect()
+                .spec(new ResponseSpecBuilder().expectStatusCode(expectedStatus).build()).when().get(endpoint).andReturn().asString();
+
+        logger.info("Txn request with invalid sortingBy Response: {}", scenarioScopeState.response);
     }
 }

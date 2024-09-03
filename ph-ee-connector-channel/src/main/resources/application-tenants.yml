@@ -11,9 +11,3 @@ bpmns:
       flows:
         payment-transfer: "minimal_mock_fund_transfer_account_lookup-{dfspid}"
         outbound-transfer-request: "minimal_mock_transfer_request-{dfspid}"
-    - id: "wakanda"
-      flows:
-        payment-transfer: "mock_payment_transfer_debit-{dfspid}"
-    - id: "jupiter"
-      flows:
-        payment-transfer: "mock_loan_disbursal-{dfspid}"

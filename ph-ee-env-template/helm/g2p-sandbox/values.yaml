@@ -595,6 +595,8 @@ ph-ee-engine:
     enabled: true
   minio:
     enabled: true
+  connector-mtn:
+    enabled: true
 
   connector_airtel:
     enabled: true

@@ -129,3 +129,8 @@ dependencies:
     version: 1.0.0
     repository: "file://./connector-ph-ee-bulk"
     condition: "ph-ee-connector.enabled"
+
+  - name: connector-mtn
+    version: 1.0.0
+    repository: "file://./connector-mtn"
+    condition: "connector-mtn.enabled"

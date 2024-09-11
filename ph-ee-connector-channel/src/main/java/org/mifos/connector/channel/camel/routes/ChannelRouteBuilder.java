@@ -3,7 +3,6 @@ package org.mifos.connector.channel.camel.routes;
 import static java.util.Base64.getEncoder;
 import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.StreamSupport.stream;
-import static org.mifos.connector.channel.camel.config.CamelProperties.*;
 import static org.mifos.connector.channel.camel.config.CamelProperties.AUTH_TYPE;
 import static org.mifos.connector.channel.camel.config.CamelProperties.BATCH_ID;
 import static org.mifos.connector.channel.camel.config.CamelProperties.CLIENTCORRELATIONID;

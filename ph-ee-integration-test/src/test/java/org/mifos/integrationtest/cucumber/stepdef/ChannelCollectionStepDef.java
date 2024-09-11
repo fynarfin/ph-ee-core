@@ -41,6 +41,19 @@ public class ChannelCollectionStepDef extends BaseStepDef {
                 .post(channelConnectorConfig.collectionEndpoint).andReturn().asString();
     }
 
+    @When("I call the channel collection API with client correlation id, country {string}, callback {string}, payment schema {string} and expected status of {int}")
+    public void iCallChannelCollectionsAPII(String country, String callback, String paymentSchema, int expectedStatus) {
+        RequestSpecification requestSpec = Utils.getDefaultSpec(scenarioScopeState.tenant, scenarioScopeState.clientCorrelationId);
+        requestSpec.header(Utils.X_PAYEMENTSCHEMA, paymentSchema);
+        requestSpec.header(Utils.X_COUNTRY, country);
+        requestSpec.header("amsName", "mifos");
+        requestSpec.header(Utils.X_CallbackURL, "http://127.0.0.1:53013" + callback);
+        scenarioScopeState.response = RestAssured.given(requestSpec).baseUri(channelConnectorConfig.channelConnectorContactPoint)
+                .body(scenarioScopeState.requestBody.toString()).expect()
+                .spec(new ResponseSpecBuilder().expectStatusCode(expectedStatus).build()).when()
+                .post(channelConnectorConfig.collectionEndpoint).andReturn().asString();
+    }
+
     @Then("I should get transaction id in response")
     public void iGetTransactionIdInResponse() {
         CollectionResponse response = (new Gson()).fromJson(scenarioScopeState.response, CollectionResponse.class);

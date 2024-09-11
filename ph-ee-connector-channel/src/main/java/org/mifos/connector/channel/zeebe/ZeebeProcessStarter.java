@@ -59,6 +59,7 @@ public class ZeebeProcessStarter {
         Map<String, Object> variables = new HashMap<>();
         variables.put(ZeebeVariables.TRANSACTION_ID, transactionId);
         variables.put(ZeebeVariables.MPESA_CHANNEL_REQUEST, request);
+        variables.put(ZeebeVariables.REQUEST_BODY, request);
         variables.put(ZeebeVariables.CHANNEL_REQUEST, MpesaUtils.mpesaChannelRequestToChannelRequestConvertor(request));
         variables.put(ZeebeVariables.ORIGIN_DATE, Instant.now().toEpochMilli());
         if (extraVariables != null) {

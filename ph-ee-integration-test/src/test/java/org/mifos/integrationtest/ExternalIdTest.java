@@ -44,7 +44,7 @@ public class ExternalIdTest {
     @Test
     @Disabled
     public void testSendCollectionRequest() throws JSONException {
-        JSONObject collectionRequestBody = CollectionHelper.getCollectionRequestBody("1", "254708374149", "24450523");
+        JSONObject collectionRequestBody = CollectionHelper.getCollectionRequestBody("1", "USD", "254708374149", "24450523");
         log.debug("{}", collectionRequestBody);
         String json = RestAssured.given(requestSpec).baseUri("http://localhost:5002").body(collectionRequestBody.toString()).expect()
                 .spec(statusOkResponseSpec).when().post("/channel/collection").andReturn().asString();

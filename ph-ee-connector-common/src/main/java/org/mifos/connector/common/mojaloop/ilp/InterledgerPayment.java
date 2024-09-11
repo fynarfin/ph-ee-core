@@ -36,18 +36,18 @@ public interface InterledgerPayment {
         // return this;
         // }
 
-        public InterledgerPayment.Builder destinationAmount(String destinationAmount) {
+        public Builder destinationAmount(String destinationAmount) {
             this.destinationAmount = (String) Objects.requireNonNull(destinationAmount);
             return this;
         }
 
-        public InterledgerPayment.Builder data(byte[] data) {
+        public Builder data(byte[] data) {
             this.data = (byte[]) Objects.requireNonNull(data);
             return this;
         }
 
         public InterledgerPayment build() {
-            return new InterledgerPayment.Builder.Impl(this);
+            return new Impl(this);
         }
 
         private static final class Impl implements InterledgerPayment {
@@ -56,7 +56,7 @@ public interface InterledgerPayment {
             private final String destinationAmount;
             private final byte[] data;
 
-            private Impl(InterledgerPayment.Builder builder) {
+            private Impl(Builder builder) {
                 Objects.requireNonNull(builder);
                 // this.destinationAccount = (InterledgerAddress)Objects.requireNonNull(builder.destinationAccount,
                 // "destinationAccount must not be null!");

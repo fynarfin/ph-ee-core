@@ -154,6 +154,9 @@ mock-payment-schema:
     mock-batch-authorization: "/batches/"
     actuator: "/actuator/health"
 
+airtel-connector:
+  contactpoint: "http://ph-ee-connector-airtel:8080"
+  airtel-ussd-push: "/merchant/v2/payments/"
 
 netflix-conductor:
   server:

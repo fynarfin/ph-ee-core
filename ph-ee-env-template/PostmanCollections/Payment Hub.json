@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "3f9bad4a-e0b2-4c48-ab5d-ac2ebd44b822",
+		"_postman_id": "0f8963d4-69ac-441a-b97d-7de6fb64430a",
 		"name": "Payment Hub APIs",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "30685438"
+		"_exporter_id": "36414551"
 	},
 	"item": [
 		{
@@ -3757,13 +3757,13 @@
 						"header": [
 							{
 								"key": "Platform-TenantId",
-								"type": "text",
-								"value": "ibank-usa"
+								"value": "ibank-usa",
+								"type": "text"
 							},
 							{
 								"key": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -3823,13 +3823,13 @@
 						"header": [
 							{
 								"key": "Platform-TenantId",
-								"type": "text",
-								"value": "ibank-usa"
+								"value": "ibank-usa",
+								"type": "text"
 							},
 							{
 								"key": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -3862,13 +3862,13 @@
 						"header": [
 							{
 								"key": "Platform-TenantId",
-								"type": "text",
-								"value": "ibank-usa"
+								"value": "ibank-usa",
+								"type": "text"
 							},
 							{
 								"key": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -3936,13 +3936,13 @@
 						"header": [
 							{
 								"key": "Platform-TenantId",
-								"type": "text",
-								"value": "ibank-usa"
+								"value": "ibank-usa",
+								"type": "text"
 							},
 							{
 								"key": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -3972,13 +3972,13 @@
 						"header": [
 							{
 								"key": "Platform-TenantId",
-								"type": "text",
-								"value": "ibank-usa"
+								"value": "ibank-usa",
+								"type": "text"
 							},
 							{
 								"key": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -43200,13 +43200,13 @@
 						"header": [
 							{
 								"key": "Platform-TenantId",
-								"type": "text",
-								"value": "ibank-usa"
+								"value": "ibank-usa",
+								"type": "text"
 							},
 							{
 								"key": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -45356,11 +45356,26 @@
 								"key": "X-CorrelationID",
 								"value": "{{clientCorrelationId}}",
 								"type": "text"
+							},
+							{
+								"key": "X-Country",
+								"value": "{{country}}",
+								"type": "text"
+							},
+							{
+								"key": "X-CallbackURL",
+								"value": "{{X-CallbackURL}}",
+								"type": "text"
+							},
+							{
+								"key": "amsName",
+								"value": "{{amsName}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"payer\": [\n        {\n            \"key\": \"MSISDN\",\n            \"value\": \"254708374149\"\n        },\n        {\n            \"key\": \"ACCOUNTID\",\n            \"value\": \"24450523\"\n        }\n    ],\n    \"amount\": {\n        \"amount\": \"1\",\n        \"currency\": \"USD\"\n    },\n    \"transactionType\": {\n        \"scenario\": \"MPESA\",\n        \"subScenario\": \"BUYGOODS\",\n        \"initiator\": \"PAYEE\",\n        \"initiatorType\": \"BUSINESS\"\n    }\n}",
+							"raw": "{\n    \"payer\": [\n        {\n            \"key\": \"MSISDN\",\n            \"value\": \"254708374149\"\n        },\n        {\n            \"key\": \"ACCOUNTID\",\n            \"value\": \"24450523\"\n        }\n    ],\n    \"amount\": {\n        \"amount\": \"1\",\n        \"currency\": \"USD\"\n    },\n    \"transactionType\": {\n        \"scenario\": \"MPESA\",\n        \"subScenario\": \"BUYGOODS\",\n        \"initiator\": \"PAYEE\",\n        \"initiatorType\": \"BUSINESS\"\n    },\n    \"note\": \"TESTING\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -49031,8 +49046,8 @@
 											},
 											"status": "Accepted",
 											"code": 202,
-											"_postman_previewlanguage": null,
-											"header": null,
+											"_postman_previewlanguage": "Text",
+											"header": [],
 											"cookie": [],
 											"body": "{\n    \"responseCode\": \"00\",\n    \"responseDescription\": \"Request successfully received by Pay-BB\",\n    \"requestID\": \"12345678-6897-6798-6798-098765432134\"\n}"
 										}

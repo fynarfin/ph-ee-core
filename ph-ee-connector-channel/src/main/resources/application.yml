@@ -43,6 +43,7 @@ security:
 
 bpmn:
   flows:
+    airtel-mifos-flow: "airtel_mifos_flow-{dfspid}"
     payment-transfer: "PayerFundTransfer-{dfspid}"
     special-payment-transfer: "SpecialPayerFundTransfer-{dfspid}"
     transaction-request: "payee_transaction_request-{dfspid}"

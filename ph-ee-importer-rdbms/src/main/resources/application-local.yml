@@ -100,29 +100,29 @@ transfer:
         - field: paymentMode
           variableName: transactionList
           jsonPath: $.payment_mode
-#    - name: bulk_connector_closedloop
-#      direction: UNKNOWN
-#      type: BATCH
-#      transformers:
-#        - field: batchId
-#          variableName: batchId
-#        - field: payerFsp
-#          variableName: tenantId
-#        - field: requestFile
-#          variableName: filename
-#        - field: registeringInstitutionId
-#          variableName: registeringInstituteId
-#        - field: correlationId
-#          variableName: clientCorrelationId
-#        - field: requestId
-#          variableName: transactionList
-#          jsonPath: $.request_id
-#        - field: note
-#          variableName: transactionList
-#          jsonPath: $.note
-#        - field: paymentMode
-#          variableName: transactionList
-#          jsonPath: $.payment_mode
+    #    - name: bulk_connector_closedloop
+    #      direction: UNKNOWN
+    #      type: BATCH
+    #      transformers:
+    #        - field: batchId
+    #          variableName: batchId
+    #        - field: payerFsp
+    #          variableName: tenantId
+    #        - field: requestFile
+    #          variableName: filename
+    #        - field: registeringInstitutionId
+    #          variableName: registeringInstituteId
+    #        - field: correlationId
+    #          variableName: clientCorrelationId
+    #        - field: requestId
+    #          variableName: transactionList
+    #          jsonPath: $.request_id
+    #        - field: note
+    #          variableName: transactionList
+    #          jsonPath: $.note
+    #        - field: paymentMode
+    #          variableName: transactionList
+    #          jsonPath: $.payment_mode
     - name: inbound_transfer_mifos
       direction: INCOMING
       type: TRANSACTION-REQUEST
@@ -384,6 +384,25 @@ transfer:
         - field: payeePartyId
           variableName: channelRequest
           jsonPath: $.payee[0].partyIdIdentifier
+    - name: airtel_flow_mifos
+      direction: INCOMING
+      type: TRANSACTION-REQUEST
+      transformers:
+        - field: transactionId
+          variableName: transactionId
+        - field: clientCorrelationId
+          variableName: clientCorrelationId
+        - field: externalId
+          variable-name: externalTransactionId
+        - field: amount
+          variableName: channelRequest
+          jsonPath: $.amount
+        - field: currency
+          variableName: currency
+        - field: payerPartyIdType
+          variableName: partyIdType
+        - field: payerPartyId
+          variableName: phoneNumber
     - name: minimal_mock_transfer_request
       direction: OUTGOING
       type: TRANSACTION-REQUEST

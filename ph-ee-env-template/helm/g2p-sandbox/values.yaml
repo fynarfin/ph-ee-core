@@ -596,6 +596,9 @@ ph-ee-engine:
   minio:
     enabled: true
 
+  connector_airtel:
+    enabled: true
+
 account_mapper:
   enabled: true
   image: docker.io/openmf/ph-ee-identity-account-mapper:latest

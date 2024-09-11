@@ -15,15 +15,18 @@ public final class CollectionHelper {
 
     private CollectionHelper() {}
 
-    public static JSONObject getCollectionRequestBody(String amount, String msisdn, String accountId) throws JSONException {
+    public static JSONObject getCollectionRequestBody(String amount, String currency, String msisdn, String accountId)
+            throws JSONException {
         List<Pair<String, String>> payers = new ArrayList<>();
         payers.add(new Pair<>("MSISDN", msisdn));
         payers.add(new Pair<>("ACCOUNTID", accountId));
 
         JSONObject body = new JSONObject();
         body.put("payer", getPayerArray(payers));
-        body.put("amount", getAmountObject(amount));
+        body.put("amount", getAmountObject(amount, currency));
         body.put("transactionType", getTransactionTypeObject());
+        body.put("customData", new JSONArray());
+        body.put("note", "Testing");
         return body;
     }
 
@@ -34,7 +37,7 @@ public final class CollectionHelper {
 
         JSONObject body = new JSONObject();
         body.put("payer", getPayerArray(payers));
-        body.put("amount", getAmountObject("1"));
+        body.put("amount", getAmountObject("1", "USD"));
         body.put("transactionType", getTransactionTypeObject());
         return body;
     }
@@ -58,16 +61,16 @@ public final class CollectionHelper {
         return payerObject;
     }
 
-    private static JSONObject getAmountObject(String amount) throws JSONException {
+    private static JSONObject getAmountObject(String amount, String currency) throws JSONException {
         JSONObject amountObject = new JSONObject();
-        amountObject.put("currency", "USD");
+        amountObject.put("currency", currency);
         amountObject.put("amount", amount);
         return amountObject;
     }
 
     private static JSONObject getTransactionTypeObject() throws JSONException {
         JSONObject txnType = new JSONObject();
-        txnType.put("scenario", "MPESA");
+        txnType.put("scenario", "AIRTEL");
         txnType.put("subScenario", "BUYGOODS");
         txnType.put("initiator", "PAYEE");
         txnType.put("initiatorType", "BUSINESS");

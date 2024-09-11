@@ -14,4 +14,5 @@ public class CollectionRequestDTO {
     private Amount amount;
     private TransactionType transactionType;
     private List<CustomData> customData;
+    private String note;
 }

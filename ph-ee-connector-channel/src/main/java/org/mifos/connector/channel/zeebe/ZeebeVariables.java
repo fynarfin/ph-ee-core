@@ -8,6 +8,7 @@ public final class ZeebeVariables {
     public static final String AUTH_RETRIES_LEFT = "authRetriesLeft";
     public static final String CHANNEL_REQUEST = "channelRequest";
     public static final String MPESA_CHANNEL_REQUEST = "mpesaChannelRequest";
+    public static final String REQUEST_BODY = "requestBody";
     public static final String ERROR_INFORMATION = "errorInformation";
     public static final String ERROR_DESCRIPTION = "errorDescription";
     public static final String IS_AUTHORISATION_REQUIRED = "isAuthorisationRequired";

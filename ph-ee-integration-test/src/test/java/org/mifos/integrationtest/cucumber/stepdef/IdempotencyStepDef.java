@@ -38,7 +38,7 @@ public class IdempotencyStepDef extends BaseStepDef {
         RequestSpecification requestSpec = Utils.getDefaultSpec(scenarioScopeState.tenant);
         requestSpec.header(Utils.X_CORRELATIONID, scenarioScopeState.clientCorrelationId);
         logger.info("X-CorrelationId: {}", scenarioScopeState.clientCorrelationId);
-        JSONObject collectionRequestBody = CollectionHelper.getCollectionRequestBody("1", "254708374149", "24450523");
+        JSONObject collectionRequestBody = CollectionHelper.getCollectionRequestBody("1", "USD", "254708374149", "24450523");
         String json = RestAssured.given(requestSpec).baseUri(channelConnectorConfig.channelConnectorContactPoint)
                 .body(collectionRequestBody.toString()).expect().spec(new ResponseSpecBuilder().expectStatusCode(expectedStatus).build())
                 .when().post(channelConnectorConfig.collectionEndpoint).andReturn().asString();
@@ -50,7 +50,7 @@ public class IdempotencyStepDef extends BaseStepDef {
     public void iCallCollectionApiWithClientCorrelationIdErrorExpectedStatus(int expectedStatus) throws JSONException {
         RequestSpecification requestSpec = Utils.getDefaultSpec(scenarioScopeState.tenant);
         requestSpec.header(Utils.X_CORRELATIONID, scenarioScopeState.clientCorrelationId);
-        JSONObject collectionRequestBody = CollectionHelper.getCollectionRequestBody("1", "254708374149", "24450523");
+        JSONObject collectionRequestBody = CollectionHelper.getCollectionRequestBody("1", "USD", "254708374149", "24450523");
         scenarioScopeState.response = RestAssured.given(requestSpec).baseUri(channelConnectorConfig.channelConnectorContactPoint)
                 .body(collectionRequestBody.toString()).expect().spec(new ResponseSpecBuilder().expectStatusCode(expectedStatus).build())
                 .when().post(channelConnectorConfig.collectionEndpoint).andReturn().asString();

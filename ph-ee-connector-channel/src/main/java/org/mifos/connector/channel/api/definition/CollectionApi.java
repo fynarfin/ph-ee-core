@@ -1,6 +1,8 @@
 package org.mifos.connector.channel.api.definition;
 
+import static org.mifos.connector.channel.camel.config.CamelProperties.COUNTRY;
 import static org.mifos.connector.channel.camel.config.CamelProperties.PAYMENT_SCHEME_HEADER;
+import static org.mifos.connector.channel.camel.config.CamelProperties.X_CALLBACKURL;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,6 +25,7 @@ public interface CollectionApi {
     GsmaP2PResponseDto collection(@RequestHeader(value = "Platform-TenantId") String tenant,
             @RequestHeader(value = "X-CorrelationID") String correlationId,
             @RequestHeader(value = PAYMENT_SCHEME_HEADER, required = false) String paymentScheme,
+            @RequestHeader(value = COUNTRY) String country, @RequestHeader(value = X_CALLBACKURL) String callbackUrl,
             @RequestBody CollectionRequestDTO requestBody) throws ExecutionException, InterruptedException, JsonProcessingException;
 
 }

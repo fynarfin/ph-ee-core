@@ -35,6 +35,8 @@ public final class Utils {
     public static final String QUERY_PARAM_TYPE = "type";
     public static final String HEADER_REGISTERING_INSTITUTE_ID = "X-Registering-Institution-ID";
     public static final String HEADER_PROGRAM_ID = "X-Program-ID";
+    public static final String X_PAYEMENTSCHEMA = "X-Payment-Scheme";
+    public static final String X_COUNTRY = "X-Country";
 
     public static void initializeRESTAssured() {
         RestAssured.baseURI = "https://localhost";

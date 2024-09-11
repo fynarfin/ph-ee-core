@@ -54,7 +54,7 @@ public class ClientCorrelationIdTest {
     @Disabled
     public void testSendCollectionRequest() throws JSONException {
         requestSpec.header(Utils.X_CORRELATIONID, clientCorrelationId);
-        JSONObject collectionRequestBody = CollectionHelper.getCollectionRequestBody("1", "254708374149", "24450523");
+        JSONObject collectionRequestBody = CollectionHelper.getCollectionRequestBody("1", "USD", "254708374149", "24450523");
         logger.info(String.valueOf(collectionRequestBody));
         String json = RestAssured.given(requestSpec).baseUri(channelConnectorConfig.channelConnectorContactPoint)
                 .body(collectionRequestBody.toString()).expect().spec(statusOkResponseSpec).when().post("/channel/collection").andReturn()

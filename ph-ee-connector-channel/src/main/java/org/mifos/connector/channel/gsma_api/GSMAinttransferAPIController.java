@@ -19,7 +19,7 @@ public class GSMAinttransferAPIController implements GSMAinttransferAPI {
 
     @Override
     public GsmaP2PResponseDto gsmaintransfer(String tenant, GSMATransaction requestBody) throws JsonProcessingException {
-        org.mifos.connector.channel.utils.Headers headers = new Headers.HeaderBuilder().addHeader("Platform-TenantId", tenant).build();
+        Headers headers = new Headers.HeaderBuilder().addHeader("Platform-TenantId", tenant).build();
         Exchange exchange = SpringWrapperUtil.getDefaultWrappedExchange(producerTemplate.getCamelContext(), headers,
                 objectMapper.writeValueAsString(requestBody));
         producerTemplate.send("direct:post-gsma-payer-int-transfer", exchange);

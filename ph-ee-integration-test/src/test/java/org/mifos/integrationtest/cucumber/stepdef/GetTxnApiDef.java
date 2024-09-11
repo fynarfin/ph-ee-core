@@ -81,7 +81,7 @@ public class GetTxnApiDef extends BaseStepDef {
     public void iCallCollectionApiWithExpectedStatus(int expectedStatus) throws JSONException {
         RequestSpecification requestSpec = Utils.getDefaultSpec(scenarioScopeState.tenant);
         requestSpec.header(Utils.X_CORRELATIONID, clientCorrelationId);
-        JSONObject collectionRequestBody = CollectionHelper.getCollectionRequestBody("1", "254708374149", "24450523");
+        JSONObject collectionRequestBody = CollectionHelper.getCollectionRequestBody("1", "USD", "254708374149", "24450523");
         logger.info(String.valueOf(collectionRequestBody));
         String json = RestAssured.given(requestSpec).baseUri(channelConnectorConfig.channelConnectorContactPoint)
                 .body(collectionRequestBody.toString()).expect().spec(new ResponseSpecBuilder().expectStatusCode(expectedStatus).build())

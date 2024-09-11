@@ -6,9 +6,12 @@ import static java.util.stream.StreamSupport.stream;
 import static org.mifos.connector.channel.camel.config.CamelProperties.AUTH_TYPE;
 import static org.mifos.connector.channel.camel.config.CamelProperties.BATCH_ID;
 import static org.mifos.connector.channel.camel.config.CamelProperties.CLIENTCORRELATIONID;
+import static org.mifos.connector.channel.camel.config.CamelProperties.COUNTRY;
 import static org.mifos.connector.channel.camel.config.CamelProperties.PAYEE_DFSP_ID;
 import static org.mifos.connector.channel.camel.config.CamelProperties.PAYMENT_SCHEME_HEADER;
+import static org.mifos.connector.channel.camel.config.CamelProperties.PLATFORM_TENANT_ID;
 import static org.mifos.connector.channel.camel.config.CamelProperties.REGISTERING_INSTITUTION_ID;
+import static org.mifos.connector.channel.camel.config.CamelProperties.X_CALLBACKURL;
 import static org.mifos.connector.channel.zeebe.ZeebeMessages.OPERATOR_MANUAL_RECOVERY;
 import static org.mifos.connector.channel.zeebe.ZeebeVariables.ACCOUNT;
 import static org.mifos.connector.channel.zeebe.ZeebeVariables.AMS;
@@ -51,6 +54,7 @@ import org.json.JSONObject;
 import org.mifos.connector.channel.camel.config.Client;
 import org.mifos.connector.channel.camel.config.ClientProperties;
 import org.mifos.connector.channel.gsma_api.GsmaP2PResponseDto;
+import org.mifos.connector.channel.model.CollectionRequestDTO;
 import org.mifos.connector.channel.model.OpsTxnResponseDTO;
 import org.mifos.connector.channel.model.ValidationResponseDTO;
 import org.mifos.connector.channel.properties.TenantImplementation;
@@ -95,6 +99,7 @@ public class ChannelRouteBuilder extends ErrorHandlerRouteBuilder {
     @Autowired
     TenantImplementationProperties tenantImplementationProperties;
 
+    private String airtelMifosFlow;
     private String paymentTransferFlow;
     private String specialPaymentTransferFlow;
     private String transactionRequestFlow;
@@ -118,6 +123,7 @@ public class ChannelRouteBuilder extends ErrorHandlerRouteBuilder {
     String destinationDfspId;
 
     public ChannelRouteBuilder(@Value("#{'${dfspids}'.split(',')}") List<String> dfspIds,
+            @Value("${bpmn.flows.airtel-mifos-flow}") String airtelMifosFlow,
             @Value("${bpmn.flows.payment-transfer}") String paymentTransferFlow,
             @Value("${bpmn.flows.special-payment-transfer}") String specialPaymentTransferFlow,
             @Value("${bpmn.flows.transaction-request}") String transactionRequestFlow,
@@ -135,6 +141,7 @@ public class ChannelRouteBuilder extends ErrorHandlerRouteBuilder {
             RestTemplate restTemplate) {
         super(authProcessor, authProperties);
         super.configure();
+        this.airtelMifosFlow = airtelMifosFlow;
         this.paymentTransferFlow = paymentTransferFlow;
         this.specialPaymentTransferFlow = specialPaymentTransferFlow;
         this.transactionRequestFlow = transactionRequestFlow;
@@ -411,16 +418,25 @@ public class ChannelRouteBuilder extends ErrorHandlerRouteBuilder {
                     amsUtils.postConstruct();
 
                     Map<String, Object> extraVariables = new HashMap<>();
-                    extraVariables.put("initiator", "PAYEE");
-                    extraVariables.put("initiatorType", "BUSINESS");
-                    extraVariables.put("scenario", "MPESA");
+                    CollectionRequestDTO channelRequestBody = objectMapper.readValue((String) exchange.getIn().getBody(),
+                            CollectionRequestDTO.class);
 
-                    String tenantId = exchange.getIn().getHeader("Platform-TenantId", String.class);
-                    String clientCorrelationId = exchange.getIn().getHeader("X-CorrelationID", String.class);
+                    extraVariables.put("initiator", channelRequestBody.getTransactionType().getInitiator());
+                    extraVariables.put("initiatorType", channelRequestBody.getTransactionType().getInitiatorType());
+                    extraVariables.put("scenario", channelRequestBody.getTransactionType().getScenario());
+
+                    String tenantId = exchange.getIn().getHeader(PLATFORM_TENANT_ID, String.class);
+                    String clientCorrelationId = exchange.getIn().getHeader(CLIENTCORRELATIONID, String.class);
                     if (tenantId == null || !dfspIds.contains(tenantId)) {
                         throw new RuntimeException("Requested tenant " + tenantId + " not configured in the connector!");
                     }
                     extraVariables.put(TENANT_ID, tenantId);
+
+                    String country = exchange.getIn().getHeader(COUNTRY, String.class);
+                    String callBackUrl = exchange.getIn().getHeader(X_CALLBACKURL, String.class);
+
+                    extraVariables.put("country", country);
+                    extraVariables.put(X_CALLBACKURL, callBackUrl);
                     String paymentScheme = getCollectionPaymentScheme(exchange.getIn().getHeader(PAYMENT_SCHEME_HEADER, String.class));
                     extraVariables.put(PAYMENT_SCHEME, paymentScheme);
                     String tenantSpecificBpmn;
@@ -453,7 +469,7 @@ public class ChannelRouteBuilder extends ErrorHandlerRouteBuilder {
                     extraVariables.put("isNotificationsFailureEnabled", isNotificationFailureServiceEnabled);
                     extraVariables.put("timer", timer);
                     extraVariables.put("clientCorrelationId", clientCorrelationId);
-
+                    extraVariables.put("payeeTenantId", destinationDfspId);
                     String transactionId = zeebeProcessStarter.startInboundTransactionZeebeWorkflow(tenantSpecificBpmn,
                             channelRequestBodyString, extraVariables);
                     JSONObject response = new JSONObject();
@@ -497,6 +513,8 @@ public class ChannelRouteBuilder extends ErrorHandlerRouteBuilder {
 
         extraVariables.put("accountId", secondaryIdentifierVal);
         extraVariables.put("phoneNumber", primaryIdentifierVal);
+        extraVariables.put(PARTY_ID_TYPE, "MSISDN");
+        extraVariables.put(PARTY_ID, primaryIdentifierVal);
         return finalAmsVal;
     }
 

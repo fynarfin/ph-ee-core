@@ -51,6 +51,8 @@ It directly provides values.
       value: "http://ph-ee-vouchers:80"
     - name: "BILLPAY_CONTACTPOINT"
       value: "http://ph-ee-connector-bill-pay:8080"
+    - name: "AIRTEL_CONNECTOR_CONTACTPOINT"
+      value: "http://ph-ee-connector-airtel:8080"
     - name: "awaitly_maxWaitTime"
       value: "60"
     - name: "GLOBAL_WAIT_TIME_MS"

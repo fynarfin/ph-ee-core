@@ -42,6 +42,16 @@ async:
 threshold:
   amount: 20000
 
+mtn:
+  contactpoint: "http://ph-ee-connector-mtn:80"
+  endpoints:
+    callback: "/callback"
+  payerIdentifier:
+    reject: 46733123451
+    delay: 46733123454
+    failure: 46733123450
+
+
 management:
   endpoint:
     health:

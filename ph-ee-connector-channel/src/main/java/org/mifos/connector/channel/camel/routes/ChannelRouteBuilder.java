@@ -62,6 +62,7 @@ import org.mifos.connector.channel.properties.TenantImplementationProperties;
 import org.mifos.connector.channel.utils.AMSProps;
 import org.mifos.connector.channel.utils.AMSUtils;
 import org.mifos.connector.channel.utils.Constants;
+import org.mifos.connector.channel.utils.HeaderConstants;
 import org.mifos.connector.channel.zeebe.ZeebeProcessStarter;
 import org.mifos.connector.common.camel.AuthProcessor;
 import org.mifos.connector.common.camel.AuthProperties;
@@ -103,6 +104,7 @@ public class ChannelRouteBuilder extends ErrorHandlerRouteBuilder {
     private String paymentTransferFlow;
     private String specialPaymentTransferFlow;
     private String transactionRequestFlow;
+    private String mtnTransactionRequestFlow;
     private String partyRegistration;
     private String inboundTransactionReqFlow;
     private String restAuthHost;
@@ -127,6 +129,7 @@ public class ChannelRouteBuilder extends ErrorHandlerRouteBuilder {
             @Value("${bpmn.flows.payment-transfer}") String paymentTransferFlow,
             @Value("${bpmn.flows.special-payment-transfer}") String specialPaymentTransferFlow,
             @Value("${bpmn.flows.transaction-request}") String transactionRequestFlow,
+            @Value("${bpmn.flows.mtn-transaction-request}") String mtnTransactionRequestFlow,
             @Value("${bpmn.flows.party-registration}") String partyRegistration,
             @Value("${bpmn.flows.inboundTransactionReq-flow}") String inboundTransactionReqFlow,
             @Value("${rest.authorization.host}") String restAuthHost, @Value("${operations.url}") String operationsUrl,
@@ -163,6 +166,7 @@ public class ChannelRouteBuilder extends ErrorHandlerRouteBuilder {
         this.restAuthHeader = restAuthHeader;
         this.operationsAuthEnabled = operationsAuthEnabled;
         this.destinationDfspId = destinationDfspId;
+        this.mtnTransactionRequestFlow = mtnTransactionRequestFlow;
     }
 
     @Override
@@ -372,6 +376,19 @@ public class ChannelRouteBuilder extends ErrorHandlerRouteBuilder {
                     response.put("transactionId", transactionId);
                     exchange.getIn().setBody(response.toString());
                 });
+    }
+
+    public String mtnTxn(TransactionChannelRequestDTO requestBody, String tenantId, String callbackURL) throws JsonProcessingException {
+        Map<String, Object> extraVariables = new HashMap<>();
+        String body = objectMapper.writeValueAsString(requestBody);
+        extraVariables.put(HeaderConstants.X_Callback_URL, callbackURL);
+
+        String tenantSpecificBpmn = mtnTransactionRequestFlow.replace("{dfspid}", tenantId);
+
+        String transactionId = zeebeProcessStarter.startZeebeWorkflow(tenantSpecificBpmn, body, extraVariables);
+
+        logger.debug("transactionId is : {}", transactionId);
+        return transactionId;
     }
 
     public ResponseEntity<String> fetchApibyWorkflowKey(HttpEntity<String> entity, long workflowInstanceKey) {

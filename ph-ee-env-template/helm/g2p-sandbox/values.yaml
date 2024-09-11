@@ -595,6 +595,9 @@ ph-ee-engine:
     enabled: true
   minio:
     enabled: true
+  connector-mtn:
+    enabled: true
+    image: docker.io/fynarfin/ph-ee-connector-mtn:latest
 
   connector_airtel:
     enabled: true

@@ -2361,3 +2361,6 @@ minio:
 
 post_installation_job:
   enabled: false
+
+connector-mtn:
+  enabled: false

@@ -16,5 +16,6 @@ public final class CamelProperties {
     public static final String PAYEE_DFSP_ID = "X-PayeeDFSP-ID";
     public static final String X_CALLBACKURL = "X-CallbackURL";
     public static final String COUNTRY = "X-Country";
+    public static final String CALLBACK_URL = "X-CallbackURL";
 
 }
